@@ -2,8 +2,8 @@
 session_start();
 
 // ══ CONFIG ══════════════════════════════
-$diretorio     = __DIR__ . '/db';
-$arquivo       = $diretorio . '/banco.txt';
+$diretorio      = __DIR__ . '/db';
+$arquivo        = $diretorio . '/banco.txt';
 $arqEmprestimos = $diretorio . '/emprestimos.txt';
 
 // ══ ROTAS ═══════════════════════════════
@@ -90,63 +90,55 @@ require __DIR__ . '/src/functions/devolver_livro.php';
     /* ── MODAL ── */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 500;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(4px);
+      background: rgba(0,0,0,0.88); backdrop-filter: blur(4px);
       display: flex; align-items: center; justify-content: center;
       padding: 1rem; opacity: 0; pointer-events: none;
       transition: opacity 0.25s ease;
     }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
-
     .modal {
       background: #0f0f0f; border: 1px solid #1e1e1e; border-top: 3px solid var(--rust);
-      width: 100%; max-width: 680px; max-height: 90vh;
+      width: 100%; max-width: 700px; max-height: 90vh;
       overflow-y: auto; position: relative;
       transform: translateY(20px); transition: transform 0.25s ease;
     }
     .modal-overlay.open .modal { transform: translateY(0); }
-
     .modal-header {
       display: flex; align-items: flex-start; justify-content: space-between;
-      padding: 2rem 2rem 1.25rem; border-bottom: 1px solid #1a1a1a; gap: 1rem;
+      padding: 1.75rem 2rem 1.25rem; border-bottom: 1px solid #1a1a1a; gap: 1rem;
+      position: sticky; top: 0; background: #0f0f0f; z-index: 10;
     }
-    .modal-title-block {}
     .modal-reg {
       font-family: var(--font-mono); font-size: 0.55rem;
-      letter-spacing: 0.25em; color: var(--rust); margin-bottom: 0.4rem;
+      letter-spacing: 0.25em; color: var(--rust); margin-bottom: 0.35rem;
     }
     .modal-title {
-      font-family: var(--font-display); font-size: 1.6rem;
+      font-family: var(--font-display); font-size: 1.5rem;
       font-weight: 900; color: #f0f0f0; line-height: 1.1;
     }
     .modal-close {
-      background: none; border: 1px solid #2a2a2a; color: #888;
-      font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer;
-      padding: 0.4rem 0.75rem; transition: all var(--transition); flex-shrink: 0;
-      letter-spacing: 0.1em;
+      background: #1a1a1a; border: 1px solid #2a2a2a; color: #aaa;
+      font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer;
+      padding: 0.5rem 0.9rem; transition: all var(--transition); flex-shrink: 0;
+      letter-spacing: 0.05em; border-radius: var(--radius);
     }
-    .modal-close:hover { border-color: var(--rust); color: var(--rust); }
-
+    .modal-close:hover { background: var(--rust); border-color: var(--rust); color: #fff; }
     .modal-stats {
       display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 1px; background: #1a1a1a; margin: 0;
-      border-bottom: 1px solid #1a1a1a;
+      gap: 1px; background: #1a1a1a; border-bottom: 1px solid #1a1a1a;
     }
-    .stat-cell {
-      background: #0f0f0f; padding: 1.25rem 1.5rem;
-    }
+    .stat-cell { background: #0f0f0f; padding: 1.1rem 1.5rem; }
     .stat-label {
       font-family: var(--font-mono); font-size: 0.5rem;
-      letter-spacing: 0.2em; color: #555; margin-bottom: 0.4rem;
-      text-transform: uppercase;
+      letter-spacing: 0.2em; color: #555; margin-bottom: 0.35rem; text-transform: uppercase;
     }
     .stat-value {
-      font-family: var(--font-display); font-size: 1.8rem;
+      font-family: var(--font-display); font-size: 1.7rem;
       font-weight: 900; color: #e0e0e0; line-height: 1;
     }
-    .stat-value.ok { color: #4caf7d; }
-    .stat-value.warn { color: #ff9800; }
+    .stat-value.ok  { color: #4caf7d; }
+    .stat-value.warn{ color: #ff9800; }
     .stat-value.bad { color: #cc2200; }
-
     .modal-body { padding: 1.5rem 2rem 2rem; }
 
     /* ── Loan form ── */
@@ -156,11 +148,10 @@ require __DIR__ . '/src/functions/devolver_livro.php';
     }
     .loan-form-title {
       font-family: var(--font-mono); font-size: 0.55rem;
-      letter-spacing: 0.25em; color: var(--rust); margin-bottom: 1.25rem;
-      text-transform: uppercase;
+      letter-spacing: 0.25em; color: var(--rust); margin-bottom: 1.25rem; text-transform: uppercase;
     }
     .loan-form { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end; }
-    .loan-field { display: flex; flex-direction: column; gap: 0.35rem; flex: 1; min-width: 130px; }
+    .loan-field { display: flex; flex-direction: column; gap: 0.35rem; flex: 1; min-width: 120px; }
     .loan-label {
       font-family: var(--font-mono); font-size: 0.5rem;
       letter-spacing: 0.15em; color: #888; text-transform: uppercase;
@@ -168,8 +159,7 @@ require __DIR__ . '/src/functions/devolver_livro.php';
     .loan-input {
       background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: var(--radius);
       color: #e0e0e0; font-family: var(--font-mono); font-size: 0.8rem;
-      padding: 0.5rem 0.75rem; outline: none;
-      transition: border-color var(--transition);
+      padding: 0.5rem 0.75rem; outline: none; transition: border-color var(--transition);
     }
     .loan-input:focus { border-color: var(--rust); }
     .loan-input::placeholder { color: #444; font-style: italic; }
@@ -178,35 +168,48 @@ require __DIR__ . '/src/functions/devolver_livro.php';
       font-family: var(--font-mono); font-size: 0.65rem;
       letter-spacing: 0.2em; text-transform: uppercase;
       padding: 0.55rem 1.25rem; cursor: pointer;
-      transition: background var(--transition); white-space: nowrap;
+      transition: background var(--transition); white-space: nowrap; align-self: flex-end;
     }
     .btn-loan:hover { background: var(--rust-dark); }
 
-    /* ── Loans list ── */
+    /* ── Loans list + filter ── */
+    .loans-header {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;
+    }
     .loans-title {
       font-family: var(--font-mono); font-size: 0.55rem;
-      letter-spacing: 0.25em; color: #666; margin-bottom: 1rem;
-      text-transform: uppercase;
+      letter-spacing: 0.25em; color: #666; text-transform: uppercase;
     }
+    .loans-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .filter-input {
+      background: #0a0a0a; border: 1px solid #222; border-radius: var(--radius);
+      color: #ccc; font-family: var(--font-mono); font-size: 0.7rem;
+      padding: 0.35rem 0.65rem; outline: none; transition: border-color var(--transition);
+    }
+    .filter-input:focus { border-color: var(--rust); }
+    .filter-input::placeholder { color: #444; font-style: italic; }
     .loan-row {
-      display: grid; grid-template-columns: 1fr auto auto auto;
+      display: grid; grid-template-columns: 1fr auto auto;
       gap: 0.5rem 1rem; align-items: center;
       padding: 0.85rem 0; border-bottom: 1px solid #151515;
     }
     .loan-row:last-child { border-bottom: none; }
+    .loan-row.hidden { display: none; }
     .loan-aluno {
-      font-family: var(--font-display); font-size: 0.95rem;
+      font-family: var(--font-display); font-size: 0.9rem;
       font-weight: 700; color: #ddd;
     }
-    .loan-date {
-      font-family: var(--font-mono); font-size: 0.6rem; color: #555;
+    .loan-sala {
+      font-family: var(--font-mono); font-size: 0.58rem;
+      color: #888; letter-spacing: 0.05em;
     }
+    .loan-date { font-family: var(--font-mono); font-size: 0.6rem; color: #555; }
     .loan-devol {
-      font-family: var(--font-mono); font-size: 0.6rem; color: #888;
-      white-space: nowrap;
+      font-family: var(--font-mono); font-size: 0.6rem; color: #888; white-space: nowrap;
     }
     .loan-devol.atrasado { color: #cc4400; }
-    .loan-devol.hoje { color: #ff9800; }
+    .loan-devol.hoje     { color: #ff9800; }
     .btn-devolver {
       background: none; border: 1px solid #2a2a2a; color: #666;
       font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.1em;
@@ -227,10 +230,28 @@ require __DIR__ . '/src/functions/devolver_livro.php';
       transition: color var(--transition);
     }
     .nav-link:hover { color: var(--rust); }
-    .nav-link .nl-arrow { font-size: 0.8rem; }
-
-    .hero-sub {
-      font-family: var(--font-mono); font-size: 0.9rem; color: #fcfcfc;
+    .hero-sub { font-family: var(--font-mono); font-size: 0.9rem; color: #fcfcfc; }
+  
+    .tabs {
+    display: flex; gap: 0; margin-bottom: 2rem;
+    border-bottom: 1px solid #1e1e1e;
+    }
+    .tab {
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: #555; font-family: var(--font-mono); font-size: 0.65rem;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    padding: 0.75rem 1.5rem; cursor: pointer;
+    transition: all var(--transition); position: relative; bottom: -1px;
+    }
+    .tab:hover { color: #ccc; }
+    .tab.active { color: #f0f0f0; border-bottom-color: var(--rust); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .badge {
+    background: var(--rust); color: #fff;
+    font-size: 0.5rem; padding: 0.1rem 0.4rem;
+    border-radius: 999px; margin-left: 0.4rem;
+    vertical-align: middle;
     }
   </style>
 </head>
@@ -246,7 +267,7 @@ require __DIR__ . '/src/functions/devolver_livro.php';
     <nav class="header-nav">
       <span class="nav-tag">Acervo</span>
       <div class="nav-dot"></div>
-      <a href="cadastrar.php" class="nav-link"><span class="nl-arrow">+</span> Registrar livro</a>
+      <a href="cadastrar.php" class="nav-link">+ Registrar livro</a>
       <div class="nav-dot"></div>
       <span class="nav-year"><?= date('Y') ?></span>
     </nav>
@@ -261,7 +282,16 @@ require __DIR__ . '/src/functions/devolver_livro.php';
     <p class="hero-sub">Clique em um livro para ver detalhes, empréstimos e devoluções.</p>
   </div>
 
-  <?php include __DIR__ . '/src/template/procurar_livros.blade.php'; ?>
+  <!-- Abas -->
+  <div class="tabs">
+    <button class="tab active" data-tab="acervo">Acervo</button>
+    <button class="tab" data-tab="alunos">Busca por aluno</button>
+    <button class="tab" data-tab="alertas">⚠ Alertas <span id="badge-alertas" class="badge" style="display:none"></span></button>
+  </div>
+
+  <div id="tab-acervo"  class="tab-panel active"><?php include __DIR__ . '/src/template/procurar_livros.blade.php'; ?></div>
+  <div id="tab-alunos"  class="tab-panel"></div>
+  <div id="tab-alertas" class="tab-panel"></div>
 </main>
 
 <footer class="footer">
@@ -274,17 +304,21 @@ require __DIR__ . '/src/functions/devolver_livro.php';
   </div>
 </footer>
 
-<!-- ── MODAL ── -->
+<!-- ══════════════ MODAL ══════════════ -->
 <div class="modal-overlay" id="modal-overlay">
-  <div class="modal" id="modal">
+  <div class="modal" id="modal" role="dialog" aria-modal="true">
+
+    <!-- Header fixo -->
     <div class="modal-header">
-      <div class="modal-title-block">
+      <div>
         <p class="modal-reg" id="modal-reg">—</p>
         <h2 class="modal-title" id="modal-title">—</h2>
       </div>
-      <button class="modal-close" id="modal-close">ESC ✕</button>
+      <button class="modal-close" id="modal-close" type="button">✕ Fechar</button>
     </div>
-    <div class="modal-stats" id="modal-stats">
+
+    <!-- Stats -->
+    <div class="modal-stats">
       <div class="stat-cell">
         <p class="stat-label">Total</p>
         <p class="stat-value" id="stat-total">—</p>
@@ -295,31 +329,374 @@ require __DIR__ . '/src/functions/devolver_livro.php';
       </div>
       <div class="stat-cell">
         <p class="stat-label">Disponíveis</p>
-        <p class="stat-value" id="stat-disponíveis">—</p>
+        <p class="stat-value" id="stat-disponiveis">—</p>
       </div>
     </div>
+
+    <!-- Body -->
     <div class="modal-body">
+
+      <!-- Formulário empréstimo -->
       <div class="loan-form-wrap">
         <p class="loan-form-title">— Registrar empréstimo</p>
         <div class="loan-form">
           <div class="loan-field">
-            <label class="loan-label">Nome do aluno</label>
+            <label class="loan-label" for="loan-aluno">Nome do aluno</label>
             <input class="loan-input" id="loan-aluno" type="text" placeholder="ex: João Silva" autocomplete="off">
           </div>
-          <div class="loan-field" style="max-width:150px">
-            <label class="loan-label">Devolução</label>
-            <input class="loan-input" id="loan-devol" type="date">
+          <div class="loan-field" style="max-width:110px">
+            <label class="loan-label" for="loan-sala">Sala / Turma</label>
+            <input class="loan-input" id="loan-sala" type="text" placeholder="2 REG 3" autocomplete="off">
           </div>
-          <button class="btn-loan" id="btn-emprestar">Emprestar →</button>
+          <div class="loan-field" style="max-width:150px">
+            <label class="loan-label" for="loan-devol">Devolução</label>
+            <input class="loan-input" id="loan-devol" type="text" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off">
+          </div>
+          <button class="btn-loan" id="btn-emprestar" type="button">Emprestar →</button>
         </div>
         <p id="loan-msg" style="font-family:var(--font-mono);font-size:0.65rem;margin-top:0.75rem;color:#888;min-height:1rem;"></p>
       </div>
 
-      <p class="loans-title">— Empréstimos ativos</p>
+      <!-- Lista de empréstimos ativos -->
+      <div class="loans-header">
+        <p class="loans-title">— Empréstimos ativos</p>
+        <div class="loans-filters">
+          <input class="filter-input" id="filter-aluno" type="text" placeholder="🔍 aluno ou sala…">
+          <input class="filter-input" id="filter-data"  type="date" title="Filtrar por data de devolução">
+        </div>
+      </div>
       <div id="loans-list"><p class="no-loans">Nenhum empréstimo ativo.</p></div>
+
+    </div><!-- /modal-body -->
+  </div><!-- /modal -->
+</div><!-- /modal-overlay -->
+
+<script>
+  // ── Garante que o DOM está pronto ────────────────────────────────────────
+  (function () {
+    'use strict';
+
+    let modalRegistro = null;
+
+    // ── Helpers ──────────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function fmtDate(iso) {
+    if (!iso) return '—';
+    const [y,m,d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+    }
+    function brToIso(br) {
+    const [d,m,y] = br.split('/');
+    return `${y}-${m}-${d}`;
+    }
+
+    function diasRestantes(iso) {
+      const hoje  = new Date(); hoje.setHours(0,0,0,0);
+      const devol = new Date(iso + 'T00:00:00');
+      return Math.round((devol - hoje) / 86400000);
+    }
+    function post(dados) {
+      const fd = new FormData();
+      Object.entries(dados).forEach(([k,v]) => fd.append(k,v));
+      return fetch(window.location.pathname, { method:'POST', body:fd }).then(r=>r.json());
+    }
+
+    // ── Grid ─────────────────────────────────────────────────────────────
+    let searchTimer = null;
+
+    function renderGrid(livros) {
+      const grid   = document.getElementById('grid');
+      const status = document.getElementById('status-bar');
+      if (!livros.length) {
+        grid.innerHTML = '<p class="empty-state">Nenhum livro encontrado.</p>';
+        status.textContent = '0 resultados';
+        return;
+      }
+      status.textContent = `${livros.length} livro${livros.length!==1?'s':''}`;
+      grid.innerHTML = livros.map(l => {
+        const pct   = l.quantidade > 0 ? Math.round((l.disponiveis/l.quantidade)*100) : 0;
+        const cls   = l.disponiveis===0 ? 'esgotado' : (l.disponiveis<=1 ? 'alerta' : '');
+        const label = l.disponiveis===0
+          ? '<span>0</span> disponíveis'
+          : `<span>${l.disponiveis}</span> disponíve${l.disponiveis!==1?'is':'l'}`;
+        return `
+          <article class="book-card" onclick="window._abrirModal('${esc(l.registro)}')">
+            <div class="book-card-accent"></div>
+            <div class="book-card-body">
+              <p class="book-title">${esc(l.nome)}</p>
+              <p class="book-reg">REG #${esc(l.registro)}</p>
+              <p class="book-qty ${cls}">${label}</p>
+              <div class="book-avail-bar">
+                <div class="book-avail-fill" style="width:${pct}%"></div>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+    }
+
+    async function buscarGrid(q) {
+      try {
+        const data = await post({ acao:'procurar_livros', busca: q||'' });
+        if (data.success) renderGrid(data.livros);
+      } catch {
+        document.getElementById('grid').innerHTML =
+          '<p class="empty-state">⚠ Erro ao carregar acervo.</p>';
+      }
+    }
+
+    document.getElementById('search').addEventListener('input', function () {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => buscarGrid(this.value.trim()), 300);
+    });
+
+    buscarGrid('');
+
+    // ── Modal ─────────────────────────────────────────────────────────────
+    const overlay = document.getElementById('modal-overlay');
+    const btnClose= document.getElementById('modal-close');
+
+    function fecharModal() {
+      overlay.classList.remove('open');
+      modalRegistro = null;
+      buscarGrid(document.getElementById('search').value.trim());
+    }
+
+    btnClose.addEventListener('click', fecharModal);
+    overlay.addEventListener('click', function(e) { if (e.target===this) fecharModal(); });
+    document.addEventListener('keydown', e => { if (e.key==='Escape') fecharModal(); });
+
+    function aplicarFiltros() {
+      const q    = document.getElementById('filter-aluno').value.trim().toLowerCase();
+      const data = document.getElementById('filter-data').value;
+      document.querySelectorAll('#loans-list .loan-row').forEach(row => {
+        const aluno = (row.dataset.aluno||'').toLowerCase();
+        const sala  = (row.dataset.sala ||'').toLowerCase();
+        const devol = row.dataset.devol || '';
+        const matchAluno = !q    || aluno.includes(q) || sala.includes(q);
+        const matchData  = !data || devol === data;
+        row.classList.toggle('hidden', !matchAluno || !matchData);
+      });
+    }
+
+    document.getElementById('filter-aluno').addEventListener('input', aplicarFiltros);
+    document.getElementById('filter-data').addEventListener('change', aplicarFiltros);
+
+    function renderLoans(livro) {
+      document.getElementById('modal-reg').textContent   = `REG #${livro.registro}`;
+      document.getElementById('modal-title').textContent = livro.nome;
+      document.getElementById('stat-total').textContent  = livro.quantidade;
+
+      const el = document.getElementById('stat-emprestados');
+      el.textContent = livro.emprestados;
+      el.className   = 'stat-value' + (livro.emprestados>0?' warn':'');
+
+      const ed = document.getElementById('stat-disponiveis');
+      ed.textContent = livro.disponiveis;
+      ed.className   = 'stat-value '+(livro.disponiveis===0?'bad':livro.disponiveis<=1?'warn':'ok');
+
+      // limpa filtros ao abrir
+      document.getElementById('filter-aluno').value = '';
+      document.getElementById('filter-data').value  = '';
+
+      const lista = document.getElementById('loans-list');
+      if (!livro.emprestimos || livro.emprestimos.length===0) {
+        lista.innerHTML = '<p class="no-loans">Nenhum empréstimo ativo.</p>';
+        return;
+      }
+      lista.innerHTML = livro.emprestimos.map(e => {
+        const dias = diasRestantes(e.devolucao);
+        let cls='', info=`Devolver até ${fmtDate(e.devolucao)}`;
+        if (dias<0)      { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)}d`; }
+        else if (dias===0){ cls='hoje';     info='⚠ Devolver HOJE'; }
+        else if (dias<=2)  info=`Em ${dias} dia${dias!==1?'s':''} (${fmtDate(e.devolucao)})`;
+        const sala = e.sala ? ` — ${esc(e.sala)}` : '';
+        return `
+          <div class="loan-row" id="row-${esc(e.id)}"
+               data-aluno="${esc(e.aluno)}" data-sala="${esc(e.sala||'')}" data-devol="${esc(e.devolucao)}">
+            <div>
+              <p class="loan-aluno">${esc(e.aluno)}<span class="loan-sala">${sala}</span></p>
+              <p class="loan-date">Retirada: ${fmtDate(e.retirada)}</p>
+            </div>
+            <p class="loan-devol ${cls}">${info}</p>
+            <button class="btn-devolver" type="button" onclick="window._devolver('${esc(e.id)}')">Devolvido ✓</button>
+          </div>`;
+      }).join('');
+    }
+
+    async function abrirModal(registro) {
+      modalRegistro = registro;
+      document.getElementById('loan-aluno').value = '';
+      document.getElementById('loan-sala').value  = '';
+      document.getElementById('loan-devol').value = '';
+      document.getElementById('loan-msg').textContent = '';
+
+      // data mínima = amanhã
+      const amanha = new Date(); amanha.setDate(amanha.getDate()+1);
+      
+      try {
+        const data = await post({ acao:'detalhes_livro', registro });
+        if (data.success) {
+          renderLoans(data.livro);
+          overlay.classList.add('open');
+          // foca no campo após animação
+          setTimeout(()=>document.getElementById('loan-aluno').focus(), 300);
+        }
+      } catch { console.error('Erro ao carregar modal.'); }
+    }
+
+    // expõe globalmente para os onclick inline do grid (gerado dinamicamente)
+    window._abrirModal = abrirModal;
+
+    // ── Abas ──────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+    if (this.dataset.tab === 'alunos')  carregarAlunos('');
+    if (this.dataset.tab === 'alertas') carregarAlertas();
+  });
+});
+
+// ── Aba: busca por aluno ──────────────────────────────────────────────────
+async function carregarAlunos(q) {
+  const panel = document.getElementById('tab-alunos');
+  const data  = await post({ acao: 'buscar_aluno', busca: q });
+  if (!data.success) return;
+
+  const emps = data.emprestimos;
+  panel.innerHTML = `
+    <div class="search-header" style="margin-bottom:1.5rem">
+      <span class="section-label">ALUNOS</span>
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input id="search-aluno" type="text" placeholder="Nome ou sala…" autocomplete="off" value="${esc(q)}">
+      </div>
+      <span style="font-family:var(--font-mono);font-size:0.6rem;color:#666">${emps.length} empréstimo${emps.length!==1?'s':''} ativo${emps.length!==1?'s':''}</span>
     </div>
-  </div>
-</div>
+    ${emps.length === 0
+      ? '<p class="empty-state" style="padding:2rem;color:#333;font-style:italic;font-family:var(--font-mono);font-size:0.75rem">Nenhum empréstimo encontrado.</p>'
+      : `<div class="book-grid" style="grid-template-columns:1fr">
+          ${emps.map(e => {
+            const dias = diasRestantes(e.devolucao);
+            let cls='', info=`Devolver até ${fmtDate(e.devolucao)}`;
+            if (dias<0)       { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)}d`; }
+            else if (dias===0){ cls='hoje';     info='⚠ Devolver HOJE'; }
+            else if (dias<=3)   info=`Em ${dias} dia${dias!==1?'s':''} (${fmtDate(e.devolucao)})`;
+            return `
+              <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
+                <div class="book-card-accent"></div>
+                <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+                  <div>
+                    <p class="book-title">${esc(e.aluno)}${e.sala ? ` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>` : ''}</p>
+                    <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)}</p>
+                  </div>
+                  <p class="loan-devol ${cls}" style="font-family:var(--font-mono);font-size:0.65rem">${info}</p>
+                </div>
+              </article>`;
+          }).join('')}
+        </div>`
+    }`;
+
+  document.getElementById('search-aluno')?.addEventListener('input', function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => carregarAlunos(this.value.trim()), 300);
+  });
+}
+
+// ── Aba: alertas ──────────────────────────────────────────────────────────
+async function carregarAlertas() {
+  const panel = document.getElementById('tab-alertas');
+  const data  = await post({ acao: 'buscar_aluno', busca: '' });
+  if (!data.success) return;
+
+  const hoje      = data.emprestimos.filter(e => diasRestantes(e.devolucao) === 0);
+  const atrasados = data.emprestimos.filter(e => diasRestantes(e.devolucao) < 0);
+  const proximos  = data.emprestimos.filter(e => { const d=diasRestantes(e.devolucao); return d>0 && d<=3; });
+
+  const total = hoje.length + atrasados.length + proximos.length;
+  const badge = document.getElementById('badge-alertas');
+  if (total > 0) { badge.textContent = total; badge.style.display = 'inline'; }
+  else badge.style.display = 'none';
+
+  function secao(titulo, cor, lista) {
+    if (!lista.length) return '';
+    return `
+      <div style="margin-bottom:2rem">
+        <p style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.25em;color:${cor};margin-bottom:1rem;text-transform:uppercase">— ${titulo} (${lista.length})</p>
+        <div class="book-grid" style="grid-template-columns:1fr">
+          ${lista.map(e => `
+            <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
+              <div class="book-card-accent" style="background:${cor}"></div>
+              <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+                <div>
+                  <p class="book-title">${esc(e.aluno)}${e.sala?` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>`:''}</p>
+                  <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)} · Retirada: ${fmtDate(e.retirada)}</p>
+                </div>
+                <p style="font-family:var(--font-mono);font-size:0.65rem;color:${cor};white-space:nowrap">${fmtDate(e.devolucao)}</p>
+              </div>
+            </article>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  panel.innerHTML = total === 0
+    ? '<p style="font-family:var(--font-mono);font-size:0.75rem;color:#333;font-style:italic;padding:2rem">Tudo em dia! Nenhum alerta no momento.</p>'
+    : secao('Atrasados', '#cc2200', atrasados)
+    + secao('Vencem hoje', '#ff9800', hoje)
+    + secao('Vencem em até 3 dias', '#ccaa00', proximos);
+}
+
+// Carrega badge de alertas ao abrir a página
+carregarAlertas();
+    document.getElementById('loan-devol').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g,'');
+    if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+    if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5);
+    this.value = v.slice(0,10);
+    });
+
+    // ── Emprestar ─────────────────────────────────────────────────────────
+    document.getElementById('btn-emprestar').addEventListener('click', async () => {
+      const aluno    = document.getElementById('loan-aluno').value.trim();
+      const sala     = document.getElementById('loan-sala').value.trim();
+      const devolucaoRaw = document.getElementById('loan-devol').value;
+const devolucao    = devolucaoRaw.length === 10 ? brToIso(devolucaoRaw) : '';
+      const msg      = document.getElementById('loan-msg');
+
+      if (!aluno || !devolucao) {
+        msg.textContent = 'Preencha ao menos o nome e a data.';
+        msg.style.color = '#cc6600'; return;
+      }
+
+      const data = await post({ acao:'emprestar_livro', registro:modalRegistro, aluno, sala, devolucao });
+      msg.textContent = data.msg;
+      msg.style.color = data.success ? '#4caf7d' : '#cc4400';
+
+      if (data.success) {
+        document.getElementById('loan-aluno').value = '';
+        document.getElementById('loan-sala').value  = '';
+        document.getElementById('loan-devol').value = '';
+        await abrirModal(modalRegistro);
+      }
+    });
+
+    // ── Devolver ──────────────────────────────────────────────────────────
+    window._devolver = async function(id) {
+      const data = await post({ acao:'devolver_livro', id });
+      if (data.success) { await abrirModal(modalRegistro); }
+      else alert(data.msg);
+    };
+
+  })();
+</script>
 
 </body>
 </html>

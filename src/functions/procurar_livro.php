@@ -30,14 +30,15 @@ function parse_emprestimos(string $arquivo): array {
     $lista  = [];
     foreach ($linhas as $linha) {
         if (str_starts_with($linha, '---')) continue;
-        // Formato: ID:xxx | Registro:xxx | Aluno:xxx | Retirada:YYYY-MM-DD | Devolucao:YYYY-MM-DD
-        if (preg_match('/ID:\s*(\S+)\s*\|\s*Registro:\s*(\S+)\s*\|\s*Aluno:\s*(.+?)\s*\|\s*Retirada:\s*(\S+)\s*\|\s*Devolucao:\s*(\S+)/', $linha, $m)) {
+        // Formato: ID:xxx | Registro:xxx | Aluno:xxx | Sala:xxx | Retirada:YYYY-MM-DD | Devolucao:YYYY-MM-DD
+        if (preg_match('/ID:\s*(\S+)\s*\|\s*Registro:\s*(\S+)\s*\|\s*Aluno:\s*(.+?)\s*\|\s*Sala:\s*(.*?)\s*\|\s*Retirada:\s*(\S+)\s*\|\s*Devolucao:\s*(\S+)/', $linha, $m)) {
             $lista[] = [
                 'id'        => $m[1],
                 'registro'  => $m[2],
                 'aluno'     => $m[3],
-                'retirada'  => $m[4],
-                'devolucao' => $m[5],
+                'sala'      => $m[4],
+                'retirada'  => $m[5],
+                'devolucao' => $m[6],
             ];
         }
     }
@@ -72,6 +73,27 @@ if ($acao === 'procurar_livros') {
     }
 
     echo json_encode(['success' => true, 'livros' => $livros], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// ── ação: buscar por aluno ────────────────────────────────────────────────────
+
+if ($acao === 'buscar_aluno') {
+    $busca   = strtolower(trim($_POST['busca'] ?? ''));
+    $livros  = parse_livros($arquivo);
+    $emps    = parse_emprestimos($arqEmprestimos);
+
+    $idx = [];
+    foreach ($livros as $l) $idx[$l['registro']] = $l['nome'];
+
+    $resultado = [];
+    foreach ($emps as $e) {
+        if (!$busca || str_contains(strtolower($e['aluno']), $busca) || str_contains(strtolower($e['sala'] ?? ''), $busca)) {
+            $resultado[] = array_merge($e, ['livro' => $idx[$e['registro']] ?? '?']);
+        }
+    }
+
+    echo json_encode(['success' => true, 'emprestimos' => $resultado], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

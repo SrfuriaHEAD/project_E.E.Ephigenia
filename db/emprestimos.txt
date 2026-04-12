@@ -1,0 +1,3 @@
+---EMPRESTIMOS---
+ID: E69dbf02d455db0.87538581 | Registro: 2 | Aluno: Arthur Abner | Sala: 2 REG 3 | Retirada: 2026-04-12 | Devolucao: 2026-04-12
+ID: E69dbf2a7a7fcb1.29469913 | Registro: 5 | Aluno: Arthur Abner | Sala: 2 REG 3 | Retirada: 2026-04-12 | Devolucao: 2026-04-12

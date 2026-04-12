@@ -9,10 +9,11 @@ header('Content-Type: application/json; charset=utf-8');
 
 $registro  = trim($_POST['registro']  ?? '');
 $aluno     = htmlspecialchars(trim($_POST['aluno'] ?? ''), ENT_QUOTES, 'UTF-8');
+$sala      = htmlspecialchars(trim($_POST['sala']  ?? ''), ENT_QUOTES, 'UTF-8');
 $devolucao = trim($_POST['devolucao'] ?? '');
 
 if (!$registro || !$aluno || !$devolucao) {
-    echo json_encode(['success' => false, 'msg' => 'Preencha todos os campos.'], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['success' => false, 'msg' => 'Preencha ao menos o nome e a data.'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -48,18 +49,25 @@ if (!$livro) {
     exit;
 }
 
-$emprestados = _count_emprestimos($arqEmprestimos, $registro);
-if ($emprestados >= $livro['quantidade']) {
-    echo json_encode(['success' => false, 'msg' => 'Nenhum exemplar disponível.'], JSON_UNESCAPED_UNICODE);
-    exit;
+$linhasEmp = file_exists($arqEmprestimos)
+    ? file($arqEmprestimos, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)
+    : [];
+foreach ($linhasEmp as $le) {
+    if (str_contains($le, "Registro: $registro |") && str_contains($le, "Aluno: $aluno |")) {
+        echo json_encode(['success' => false, 'msg' => 'Este aluno já está com um exemplar deste livro.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
+
+$emprestados = _count_emprestimos($arqEmprestimos, $registro);
+if ($emprestados >= $livro['quantidade']) 
 
 if (!is_dir($diretorio)) mkdir($diretorio, 0777, true);
 if (!file_exists($arqEmprestimos)) file_put_contents($arqEmprestimos, "---EMPRESTIMOS---\n", LOCK_EX);
 
 $id      = uniqid('E', true);
 $hoje    = date('Y-m-d');
-$linha   = "ID: $id | Registro: $registro | Aluno: $aluno | Retirada: $hoje | Devolucao: $devolucao\n";
+$linha   = "ID: $id | Registro: $registro | Aluno: $aluno | Sala: $sala | Retirada: $hoje | Devolucao: $devolucao\n";
 file_put_contents($arqEmprestimos, $linha, FILE_APPEND | LOCK_EX);
 
 echo json_encode(['success' => true, 'msg' => 'Empréstimo registrado!'], JSON_UNESCAPED_UNICODE);
