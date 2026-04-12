@@ -231,14 +231,14 @@ require __DIR__ . '/src/functions/devolver_livro.php';
     }
     .nav-link:hover { color: var(--rust); }
     .hero-sub { font-family: var(--font-mono); font-size: 0.9rem; color: #fcfcfc; }
-  
+    .hero-system { font-family: var(--font-mono); font-size: 0.9rem; letter-spacing: 0.15em; color: #f80000; margin-left: 10px; }
     .tabs {
     display: flex; gap: 0; margin-bottom: 2rem;
     border-bottom: 1px solid #1e1e1e;
     }
     .tab {
     background: none; border: none; border-bottom: 2px solid transparent;
-    color: #555; font-family: var(--font-mono); font-size: 0.65rem;
+    color: #ececec; font-family: var(--font-mono); font-size: 0.65rem;
     letter-spacing: 0.15em; text-transform: uppercase;
     padding: 0.75rem 1.5rem; cursor: pointer;
     transition: all var(--transition); position: relative; bottom: -1px;
@@ -277,7 +277,7 @@ require __DIR__ . '/src/functions/devolver_livro.php';
 
 <main class="main">
   <div class="hero">
-    <p class="hero-label">Sistema de acervo</p>
+    <p class="hero-system">Sistema de acervo</p>
     <h1 class="hero-title">Acer<em>vo</em></h1>
     <p class="hero-sub">Clique em um livro para ver detalhes, empréstimos e devoluções.</p>
   </div>
@@ -362,7 +362,7 @@ require __DIR__ . '/src/functions/devolver_livro.php';
         <p class="loans-title">— Empréstimos ativos</p>
         <div class="loans-filters">
           <input class="filter-input" id="filter-aluno" type="text" placeholder="🔍 aluno ou sala…">
-          <input class="filter-input" id="filter-data"  type="date" title="Filtrar por data de devolução">
+          <input class="loan-input" id="filter-data" type="text" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off">
         </div>
       </div>
       <div id="loans-list"><p class="no-loans">Nenhum empréstimo ativo.</p></div>
@@ -477,13 +477,20 @@ require __DIR__ . '/src/functions/devolver_livro.php';
         const sala  = (row.dataset.sala ||'').toLowerCase();
         const devol = row.dataset.devol || '';
         const matchAluno = !q    || aluno.includes(q) || sala.includes(q);
-        const matchData  = !data || devol === data;
+        const dataISO = data.length === 10 ? brToIso(data) : '';
+        const matchData = !dataISO || devol === dataISO;
         row.classList.toggle('hidden', !matchAluno || !matchData);
       });
     }
 
     document.getElementById('filter-aluno').addEventListener('input', aplicarFiltros);
-    document.getElementById('filter-data').addEventListener('change', aplicarFiltros);
+    document.getElementById('filter-data').addEventListener('input', function () {
+        let v = this.value.replace(/\D/g,'');
+        if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+        if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5);
+        this.value = v.slice(0,10);
+        aplicarFiltros();
+    });
 
     function renderLoans(livro) {
       document.getElementById('modal-reg').textContent   = `REG #${livro.registro}`;
@@ -534,9 +541,12 @@ require __DIR__ . '/src/functions/devolver_livro.php';
       document.getElementById('loan-devol').value = '';
       document.getElementById('loan-msg').textContent = '';
 
-      // data mínima = amanhã
+      // data mínima = amanhã — mostra no placeholder do campo
       const amanha = new Date(); amanha.setDate(amanha.getDate()+1);
-      
+      const _pad = n => String(n).padStart(2,'0');
+      const amanhaStr = `${_pad(amanha.getDate())}/${_pad(amanha.getMonth()+1)}/${amanha.getFullYear()}`;
+      document.getElementById('loan-devol').placeholder = `mín: ${amanhaStr}`;
+
       try {
         const data = await post({ acao:'detalhes_livro', registro });
         if (data.success) {
@@ -672,7 +682,16 @@ const devolucao    = devolucaoRaw.length === 10 ? brToIso(devolucaoRaw) : '';
       const msg      = document.getElementById('loan-msg');
 
       if (!aluno || !devolucao) {
-        msg.textContent = 'Preencha ao menos o nome e a data.';
+        msg.textContent = 'Preencha ao menos o nome e a data (DD/MM/AAAA).';
+        msg.style.color = '#cc6600'; return;
+      }
+
+      // Valida se a data não é passada nem hoje
+      const [dD,dM,dY] = devolucaoRaw.split('/');
+      const dtDevol = new Date(+dY, +dM-1, +dD);
+      const dtHoje  = new Date(); dtHoje.setHours(0,0,0,0);
+      if (isNaN(dtDevol) || dtDevol <= dtHoje) {
+        msg.textContent = 'A data de devolução deve ser a partir de amanhã.';
         msg.style.color = '#cc6600'; return;
       }
 

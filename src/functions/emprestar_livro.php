@@ -52,15 +52,23 @@ if (!$livro) {
 $linhasEmp = file_exists($arqEmprestimos)
     ? file($arqEmprestimos, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)
     : [];
+
+// Bloqueia o mesmo aluno em QUALQUER livro (1 empréstimo por vez)
 foreach ($linhasEmp as $le) {
-    if (str_contains($le, "Registro: $registro |") && str_contains($le, "Aluno: $aluno |")) {
-        echo json_encode(['success' => false, 'msg' => 'Este aluno já está com um exemplar deste livro.'], JSON_UNESCAPED_UNICODE);
+    if (str_contains($le, "Aluno: $aluno |")) {
+        // Descobre qual livro ele já está com
+        preg_match('/Registro:\s*(\S+)/', $le, $mReg);
+        $regAtual = $mReg[1] ?? '?';
+        echo json_encode(['success' => false, 'msg' => "Este aluno já possui um empréstimo ativo (Reg #$regAtual). Devolva antes de emprestar outro."], JSON_UNESCAPED_UNICODE);
         exit;
     }
 }
 
 $emprestados = _count_emprestimos($arqEmprestimos, $registro);
-if ($emprestados >= $livro['quantidade']) 
+if ($emprestados >= $livro['quantidade']) {
+    echo json_encode(['success' => false, 'msg' => 'Sem exemplares disponíveis para este livro.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 if (!is_dir($diretorio)) mkdir($diretorio, 0777, true);
 if (!file_exists($arqEmprestimos)) file_put_contents($arqEmprestimos, "---EMPRESTIMOS---\n", LOCK_EX);

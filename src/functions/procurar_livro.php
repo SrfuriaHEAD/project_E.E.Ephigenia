@@ -5,7 +5,7 @@
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
 $acao = $_POST['acao'] ?? '';
-if (!in_array($acao, ['procurar_livros', 'detalhes_livro'])) return;
+if (!in_array($acao, ['procurar_livros', 'detalhes_livro', 'buscar_aluno'])) return;
 
 header('Content-Type: application/json; charset=utf-8');
 
