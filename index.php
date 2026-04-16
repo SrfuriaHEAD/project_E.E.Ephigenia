@@ -1,15 +1,57 @@
 <?php
 session_start();
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
+ob_start();
 
-// ══ CONFIG ══════════════════════════════
+// ══ CONFIG ══════
 $diretorio      = __DIR__ . '/db';
+global $arquivo, $arqEmprestimos;
 $arquivo        = $diretorio . '/banco.txt';
 $arqEmprestimos = $diretorio . '/emprestimos.txt';
 
-// ══ ROTAS ═══════════════════════════════
+// ══ ROTAS ═══════
 require __DIR__ . '/src/functions/procurar_livro.php';
 require __DIR__ . '/src/functions/emprestar_livro.php';
 require __DIR__ . '/src/functions/devolver_livro.php';
+require __DIR__ . '/src/functions/deletar_livro.php';
+
+// ── Handler de ações ──────────────────────────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao'])) {
+    header('Content-Type: application/json');
+    
+    switch ($_POST['acao']) {
+        case 'deletar_livro':
+            $result = deletarLivro($_POST['registro'] ?? '');
+            echo json_encode($result);
+            exit;
+            
+        // 🔸 PLACEHOLDERS para não quebrar (REMOVA depois)
+        case 'procurar_livros':
+            echo json_encode(['success' => true, 'livros' => []]);
+            exit;
+            
+        case 'detalhes_livro':
+            echo json_encode([
+                'success' => true, 
+                'livro' => (object)[
+                    'registro' => $_POST['registro'] ?? 'TESTE',
+                    'nome' => 'TESTE LIVRO',
+                    'quantidade' => 5,
+                    'emprestados' => 0,
+                    'disponiveis' => 5,
+                    'emprestimos' => []
+                ]
+            ]);
+            exit;
+            
+        default:
+            echo json_encode(['success' => false, 'msg' => 'Ação inválida']);
+            exit;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -223,14 +265,9 @@ require __DIR__ . '/src/functions/devolver_livro.php';
     }
 
     /* ── Nav link ── */
-    .nav-link {
-      font-family: var(--font-mono); font-size: 0.6rem;
-      letter-spacing: 0.15em; color: #555; text-decoration: none;
-      display: flex; align-items: center; gap: 0.5rem;
-      transition: color var(--transition);
-    }
-    .nav-link:hover { color: var(--rust); }
-    .hero-sub { font-family: var(--font-mono); font-size: 0.9rem; color: #fcfcfc; }
+    
+    .nav-link:hover { color: #313131; }
+    .hero-sub { font-family: var(--font-mono); font-size: 0.9rem; color: #000000; }
     .hero-system { font-family: var(--font-mono); font-size: 0.9rem; letter-spacing: 0.15em; color: #f80000; margin-left: 10px; }
     .tabs {
     display: flex; gap: 0; margin-bottom: 2rem;
@@ -238,13 +275,13 @@ require __DIR__ . '/src/functions/devolver_livro.php';
     }
     .tab {
     background: none; border: none; border-bottom: 2px solid transparent;
-    color: #ececec; font-family: var(--font-mono); font-size: 0.65rem;
+    color: #000000; font-family: var(--font-mono); font-size: 0.85rem;
     letter-spacing: 0.15em; text-transform: uppercase;
     padding: 0.75rem 1.5rem; cursor: pointer;
     transition: all var(--transition); position: relative; bottom: -1px;
     }
-    .tab:hover { color: #ccc; }
-    .tab.active { color: #f0f0f0; border-bottom-color: var(--rust); }
+    .tab:hover { color: #000000; }
+    .tab.active { color: #000000; border-bottom-color: var(--rust); }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
     .badge {
@@ -265,7 +302,7 @@ require __DIR__ . '/src/functions/devolver_livro.php';
       <span class="logo-name">E.E. Ephigênia</span>
     </div>
     <nav class="header-nav">
-      <span class="nav-tag">Acervo</span>
+      <a class="nav-link" href="index_alunos.php">Area Aluno</a>
       <div class="nav-dot"></div>
       <a href="cadastrar.php" class="nav-link">+ Registrar livro</a>
       <div class="nav-dot"></div>
@@ -357,6 +394,15 @@ require __DIR__ . '/src/functions/devolver_livro.php';
         <p id="loan-msg" style="font-family:var(--font-mono);font-size:0.65rem;margin-top:0.75rem;color:#888;min-height:1rem;"></p>
       </div>
 
+      <!-- 🔥 BOTÃO DELETE - CORRETO 🔥 -->
+      <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-left:3px solid #cc2200;padding:1.5rem;margin-bottom:2rem;border-radius:var(--radius);">
+        <p style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.25em;color:#cc2200;margin-bottom:0.75rem;text-transform:uppercase;">— AÇÃO DE EMERGÊNCIA</p>
+        <button id="btn-deletar" style="background:#cc2200;color:#fff;border:none;font-family:var(--font-mono);font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.75rem 1.5rem;cursor:pointer;width:100%;border-radius:var(--radius);transition:all 0.2s;">
+          🗑️ APAGAR LIVRO DO SISTEMA
+        </button>
+        <p id="delete-msg" style="font-family:var(--font-mono);font-size:0.65rem;margin-top:0.75rem;color:#888;min-height:1.2rem;font-style:italic;">Remove permanentemente do banco.txt + todos os empréstimos relacionados.</p>
+      </div>
+
       <!-- Lista de empréstimos ativos -->
       <div class="loans-header">
         <p class="loans-title">— Empréstimos ativos</p>
@@ -425,7 +471,7 @@ require __DIR__ . '/src/functions/devolver_livro.php';
           : `<span>${l.disponiveis}</span> disponíve${l.disponiveis!==1?'is':'l'}`;
         return `
           <article class="book-card" onclick="window._abrirModal('${esc(l.registro)}')">
-            <div class="book-card-accent"></div>
+          <div class="book-card-accent"></div>
             <div class="book-card-body">
               <p class="book-title">${esc(l.nome)}</p>
               <p class="book-reg">REG #${esc(l.registro)}</p>
@@ -573,6 +619,7 @@ document.querySelectorAll('.tab').forEach(btn => {
   });
 });
 
+
 // ── Aba: busca por aluno ──────────────────────────────────────────────────
 async function carregarAlunos(q) {
   const panel = document.getElementById('tab-alunos');
@@ -601,8 +648,8 @@ async function carregarAlunos(q) {
             else if (dias===0){ cls='hoje';     info='⚠ Devolver HOJE'; }
             else if (dias<=3)   info=`Em ${dias} dia${dias!==1?'s':''} (${fmtDate(e.devolucao)})`;
             return `
-              <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
-                <div class="book-card-accent"></div>
+             <article class="book-card" onclick="window._abrirModal('${esc(e.nome)}')">
+              <div class="book-card-accent"></div>
                 <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
                   <div>
                     <p class="book-title">${esc(e.aluno)}${e.sala ? ` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>` : ''}</p>
@@ -643,8 +690,8 @@ async function carregarAlertas() {
         <p style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.25em;color:${cor};margin-bottom:1rem;text-transform:uppercase">— ${titulo} (${lista.length})</p>
         <div class="book-grid" style="grid-template-columns:1fr">
           ${lista.map(e => `
-            <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
-              <div class="book-card-accent" style="background:${cor}"></div>
+          <article class="book-card" onclick="window._abrirModal('${esc(e.nome)}')">
+            <div class="book-card-accent" style="background:${cor}"></div>
               <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
                 <div>
                   <p class="book-title">${esc(e.aluno)}${e.sala?` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>`:''}</p>
@@ -713,6 +760,34 @@ const devolucao    = devolucaoRaw.length === 10 ? brToIso(devolucaoRaw) : '';
       if (data.success) { await abrirModal(modalRegistro); }
       else alert(data.msg);
     };
+
+        // ── DELETAR LIVRO ─────────────────────────────────────────────────────────
+document.getElementById('btn-deletar').addEventListener('click', async () => {
+  if (!confirm(`⚠️ APAGAR LIVRO PERMANENTEMENTE\n\nREG #${modalRegistro}\n"${document.getElementById('modal-title').textContent}"\n\n✅ Remove do banco.txt\n✅ Remove TODOS os empréstimos\n\nCONFIRMAR?`)) return;
+  
+  const btn = document.getElementById('btn-deletar');
+  const msg = document.getElementById('delete-msg');
+  btn.textContent = '⏳ Apagando...';
+  btn.disabled = true;
+  
+  try {
+    const data = await post({ acao: 'deletar_livro', registro: modalRegistro });
+    msg.textContent = data.msg;
+    msg.style.color = data.success ? '#4caf7d' : '#cc4400';
+    
+    if (data.success) {
+      setTimeout(fecharModal, 1500); // Fecha e recarrega grid
+    } else {
+      btn.textContent = '🗑️ APAGAR LIVRO DO SISTEMA';
+      btn.disabled = false;
+    }
+  } catch {
+    msg.textContent = 'Erro de conexão';
+    msg.style.color = '#cc4400';
+    btn.textContent = '🗑️ APAGAR LIVRO DO SISTEMA';
+    btn.disabled = false;
+  }
+});
 
   })();
 </script>

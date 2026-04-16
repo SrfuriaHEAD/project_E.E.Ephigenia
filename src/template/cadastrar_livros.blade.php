@@ -19,20 +19,42 @@
       </div>
 
       <div class="field-group">
-        <label class="field-label" for="f-registro">Nº de registro</label>
+        <label class="field-label" for="f-autor">Autor(es)</label>
         <div class="field-wrap">
-          <input class="field-input" type="number" id="f-registro" name="registro"
-                 placeholder="ex: 1042" required min="1">
+          <input class="field-input" type="text" id="f-autor" name="autor"
+                 placeholder="ex: Machado de Assis" autocomplete="off">
           <span class="field-bar"></span>
         </div>
       </div>
 
-      <div class="field-group">
-        <label class="field-label" for="f-quantidade">Quantidade de exemplares</label>
-        <div class="field-wrap">
-          <input class="field-input" type="number" id="f-quantidade" name="quantidade"
-                 placeholder="ex: 3" required min="1">
-          <span class="field-bar"></span>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap">
+        <div class="field-group" style="flex:2;min-width:160px">
+          <label class="field-label" for="f-editora">Editora</label>
+          <div class="field-wrap">
+            <input class="field-input" type="text" id="f-editora" name="editora"
+                   placeholder="ex: Companhia das Letras" autocomplete="off">
+            <span class="field-bar"></span>
+          </div>
+        </div>
+
+        <div class="field-group" style="flex:1;min-width:100px">
+          <label class="field-label" for="f-ano">Ano</label>
+          <div class="field-wrap">
+            <input class="field-input" type="number" id="f-ano" name="ano"
+                   placeholder="ex: 2019" min="1000" max="2099" autocomplete="off">
+            <span class="field-bar"></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:1rem;flex-wrap:wrap">
+        <div class="field-group" style="flex:1;min-width:130px">
+          <label class="field-label" for="f-quantidade">Qtd. de exemplares</label>
+          <div class="field-wrap">
+            <input class="field-input" type="number" id="f-quantidade" name="quantidade"
+                   placeholder="ex: 3" required min="1">
+            <span class="field-bar"></span>
+          </div>
         </div>
       </div>
 
@@ -52,6 +74,7 @@
       <ul class="aside-list">
         <li>O título deve ser único no acervo.</li>
         <li>O nº de registro não pode se repetir.</li>
+        <li>Autor, editora e ano são opcionais.</li>
         <li>Quantidade mínima: 1 exemplar.</li>
       </ul>
     </div>

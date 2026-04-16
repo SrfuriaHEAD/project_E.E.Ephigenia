@@ -4,8 +4,10 @@
 // Remove a linha do empréstimo pelo ID
 // Depende de $arqEmprestimos definido no index.php
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || ($_POST['acao'] ?? '') !== 'devolver_livro') return;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST'
+    || ($_POST['acao'] ?? '') !== 'devolver_livro') return;
 
+ob_clean();
 header('Content-Type: application/json; charset=utf-8');
 
 $id = trim($_POST['id'] ?? '');

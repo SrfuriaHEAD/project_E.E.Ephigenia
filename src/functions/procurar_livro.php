@@ -5,8 +5,9 @@
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
 $acao = $_POST['acao'] ?? '';
-if (!in_array($acao, ['procurar_livros', 'detalhes_livro', 'buscar_aluno'])) return;
+if (!in_array($acao, ['procurar_livros', 'buscar_aluno', 'detalhes_livro'])) return;
 
+ob_clean();
 header('Content-Type: application/json; charset=utf-8');
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -17,8 +18,28 @@ function parse_livros(string $arquivo): array {
     $livros = [];
     foreach ($linhas as $linha) {
         if (str_starts_with($linha, '---')) continue;
-        if (preg_match('/Nome:\s*(.+?)\s*\|\s*Registro:\s*(.+?)\s*\|\s*Quantidade:\s*(\d+)/', $linha, $m)) {
-            $livros[] = ['nome' => $m[1], 'registro' => $m[2], 'quantidade' => (int)$m[3]];
+        
+        // Regex simplificada para focar no Nome e na Quantidade
+        if (preg_match('/Nome:\s*(.+?)\s*\|/', $linha, $m)) {
+            $nome = trim($m[1]);
+            
+            // Tenta pegar a quantidade, se não achar, assume 1
+            preg_match('/Quantidade:\s*(\d+)/', $linha, $mq);
+            $qtd = isset($mq[1]) ? (int)$mq[1] : 1;
+
+            // Tenta pegar o autor
+            $autor = '';
+            if (preg_match('/Autor:\s*(.+?)(?:\s*\||$)/', $linha, $ma)) {
+                $autor = trim($ma[1]);
+            }
+
+            // IMPORTANTE: O 'registro' agora recebe o 'nome' para não quebrar o resto do sistema
+            $livros[] = [
+                'nome' => $nome, 
+                'registro' => $nome, // Enganamos o sistema aqui
+                'quantidade' => $qtd, 
+                'autor' => $autor
+            ];
         }
     }
     return $livros;
@@ -68,7 +89,7 @@ if ($acao === 'procurar_livros') {
         $livros = array_values(array_filter(
             $livros,
             fn($l) => str_contains(strtolower($l['nome']), $busca)
-                   || str_contains(strtolower($l['registro']), $busca)
+                  
         ));
     }
 
@@ -106,7 +127,7 @@ if ($acao === 'detalhes_livro') {
 
     $livro = null;
     foreach ($livros as $l) {
-        if ($l['registro'] === $registro) { $livro = $l; break; }
+        if ($l['nome'] === $registro) { $livro = $l; break; }
     }
 
     if (!$livro) {
