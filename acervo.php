@@ -20,39 +20,13 @@ require __DIR__ . '/src/functions/deletar_livro.php';
 
 
 
-// ── Handler de ações ──────────────────────────────────────────────────────
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao'])) {
-    header('Content-Type: application/json');
-    
-    switch ($_POST['acao']) {
-        case 'deletar_livro':
-            $result = deletarLivro($_POST['registro'] ?? '');
-            echo json_encode($result);
-            exit;
-            
-        // 🔸 PLACEHOLDERS para não quebrar (REMOVA depois)
-        case 'procurar_livros':
-            echo json_encode(['success' => true, 'livros' => []]);
-            exit;
-            
-        case 'detalhes_livro':
-            echo json_encode([
-                'success' => true, 
-                'livro' => (object)[
-                    'registro' => $_POST['registro'] ?? 'TESTE',
-                    'nome' => 'TESTE LIVRO',
-                    'quantidade' => 5,
-                    'emprestados' => 0,
-                    'disponiveis' => 5,
-                    'emprestimos' => []
-                ]
-            ]);
-            exit;
-            
-        default:
-            echo json_encode(['success' => false, 'msg' => 'Ação inválida']);
-            exit;
-    }
+// ── Handler: deletar_livro (único que não é tratado pelos requires acima) ──
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'deletar_livro') {
+    ob_clean();
+    header('Content-Type: application/json; charset=utf-8');
+    $result = deletarLivro($_POST['registro'] ?? '');
+    echo json_encode($result, JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 ?>
@@ -542,7 +516,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao'])) {
     });
 
     function renderLoans(livro) {
-      document.getElementById('modal-reg').textContent   = `REG #${livro.registro}`;
+      const extras = [
+        livro.autor       ? `Autor: ${livro.autor}` : '',
+        livro.prateleira  ? `Prateleira: ${livro.prateleira}` : '',
+        livro.faixaEtaria ? `Nível: ${livro.faixaEtaria}` : '',
+      ].filter(Boolean).join(' · ');
+      document.getElementById('modal-reg').textContent   = `REG #${livro.registro}` + (extras ? ` · ${extras}` : '');
       document.getElementById('modal-title').textContent = livro.nome;
       document.getElementById('stat-total').textContent  = livro.quantidade;
 
@@ -566,7 +545,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao'])) {
       lista.innerHTML = livro.emprestimos.map(e => {
         const dias = diasRestantes(e.devolucao);
         let cls='', info=`Devolver até ${fmtDate(e.devolucao)}`;
-        if (dias<0)      { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)}d`; }
+        if (dias<0)      { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`; }
         else if (dias===0){ cls='hoje';     info='⚠ Devolver HOJE'; }
         else if (dias<=2)  info=`Em ${dias} dia${dias!==1?'s':''} (${fmtDate(e.devolucao)})`;
         const sala = e.sala ? ` — ${esc(e.sala)}` : '';
@@ -647,16 +626,16 @@ async function carregarAlunos(q) {
           ${emps.map(e => {
             const dias = diasRestantes(e.devolucao);
             let cls='', info=`Devolver até ${fmtDate(e.devolucao)}`;
-            if (dias<0)       { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)}d`; }
+            if (dias<0)       { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`; }
             else if (dias===0){ cls='hoje';     info='⚠ Devolver HOJE'; }
             else if (dias<=3)   info=`Em ${dias} dia${dias!==1?'s':''} (${fmtDate(e.devolucao)})`;
             return `
-             <article class="book-card" onclick="window._abrirModal('${esc(e.nome)}')">
+             <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
               <div class="book-card-accent"></div>
                 <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
                   <div>
                     <p class="book-title">${esc(e.aluno)}${e.sala ? ` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>` : ''}</p>
-                    <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)}</p>
+                    <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)} · Retirada: ${fmtDate(e.retirada)}</p>
                   </div>
                   <p class="loan-devol ${cls}" style="font-family:var(--font-mono);font-size:0.65rem">${info}</p>
                 </div>
@@ -693,14 +672,20 @@ async function carregarAlertas() {
         <p style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.25em;color:${cor};margin-bottom:1rem;text-transform:uppercase">— ${titulo} (${lista.length})</p>
         <div class="book-grid" style="grid-template-columns:1fr">
           ${lista.map(e => `
-          <article class="book-card" onclick="window._abrirModal('${esc(e.nome)}')">
+          <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
             <div class="book-card-accent" style="background:${cor}"></div>
               <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
                 <div>
                   <p class="book-title">${esc(e.aluno)}${e.sala?` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>`:''}</p>
                   <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)} · Retirada: ${fmtDate(e.retirada)}</p>
                 </div>
-                <p style="font-family:var(--font-mono);font-size:0.65rem;color:${cor};white-space:nowrap">${fmtDate(e.devolucao)}</p>
+                <p style="font-family:var(--font-mono);font-size:0.65rem;color:${cor};white-space:nowrap">
+                  ${diasRestantes(e.devolucao) < 0
+                    ? `⚠ Atrasado ${Math.abs(diasRestantes(e.devolucao))} dia${Math.abs(diasRestantes(e.devolucao))!==1?'s':''}`
+                    : diasRestantes(e.devolucao) === 0
+                      ? '⚠ Devolver HOJE'
+                      : `Devolver até ${fmtDate(e.devolucao)}`}
+                </p>
               </div>
             </article>`).join('')}
         </div>

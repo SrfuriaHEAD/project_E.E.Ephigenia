@@ -1,6 +1,6 @@
 <?php
 // src/functions/procurar_livro.php
-// Ações: procurar_livros | detalhes_livro
+// Ações: procurar_livros | buscar_aluno | detalhes_livro
 // Depende de $arquivo e $arqEmprestimos definidos no index.php
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
@@ -10,48 +10,49 @@ if (!in_array($acao, ['procurar_livros', 'buscar_aluno', 'detalhes_livro'])) ret
 ob_clean();
 header('Content-Type: application/json; charset=utf-8');
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+// ── helpers ───────────────────────────────────────────────────────────────────
 
 function parse_livros(string $arquivo): array {
     if (!file_exists($arquivo)) return [];
-    $linhas = file($arquivo, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     $livros = [];
-    foreach ($linhas as $linha) {
+    foreach (file($arquivo, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $linha) {
         if (str_starts_with($linha, '---')) continue;
-        
-        // Regex simplificada para focar no Nome e na Quantidade
-        if (preg_match('/Nome:\s*(.+?)\s*\|/', $linha, $m)) {
-            $nome = trim($m[1]);
-            
-            // Tenta pegar a quantidade, se não achar, assume 1
-            preg_match('/Quantidade:\s*(\d+)/', $linha, $mq);
-            $qtd = isset($mq[1]) ? (int)$mq[1] : 1;
+        if (!preg_match('/Nome:\s*(.+?)\s*\|\s*Registro:\s*([^\|]+?)\s*\|\s*Quantidade:\s*(\d+)/', $linha, $m)) continue;
 
-            // Tenta pegar o autor
-            $autor = '';
-            if (preg_match('/Autor:\s*(.+?)(?:\s*\||$)/', $linha, $ma)) {
-                $autor = trim($ma[1]);
-            }
+        $nome     = trim($m[1]);
+        $registro = trim($m[2]);
+        $qtd      = (int)$m[3];
 
-            // IMPORTANTE: O 'registro' agora recebe o 'nome' para não quebrar o resto do sistema
-            $livros[] = [
-                'nome' => $nome, 
-                'registro' => $nome, // Enganamos o sistema aqui
-                'quantidade' => $qtd, 
-                'autor' => $autor
-            ];
-        }
+        $autor = '';
+        if (preg_match('/Autor:\s*(.+?)(?:\s*\||$)/', $linha, $ma)) $autor = trim($ma[1]);
+        $editora = '';
+        if (preg_match('/Editora:\s*(.+?)(?:\s*\||$)/', $linha, $me)) $editora = trim($me[1]);
+        $ano = '';
+        if (preg_match('/Ano:\s*(\d+)/', $linha, $mano)) $ano = trim($mano[1]);
+        $prateleira = '';
+        if (preg_match('/Prateleira:\s*(.+?)(?:\s*\||$)/', $linha, $mp)) $prateleira = trim($mp[1]);
+        $faixaEtaria = '';
+        if (preg_match('/FaixaEtaria:\s*(.+?)(?:\s*\||$)/', $linha, $mf)) $faixaEtaria = trim($mf[1]);
+
+        $livros[] = [
+            'nome'        => $nome,
+            'registro'    => $registro,
+            'quantidade'  => $qtd,
+            'autor'       => $autor,
+            'editora'     => $editora,
+            'ano'         => $ano,
+            'prateleira'  => $prateleira,
+            'faixaEtaria' => $faixaEtaria,
+        ];
     }
     return $livros;
 }
 
 function parse_emprestimos(string $arquivo): array {
     if (!file_exists($arquivo)) return [];
-    $linhas = file($arquivo, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    $lista  = [];
-    foreach ($linhas as $linha) {
+    $lista = [];
+    foreach (file($arquivo, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $linha) {
         if (str_starts_with($linha, '---')) continue;
-        // Formato: ID:xxx | Registro:xxx | Aluno:xxx | Sala:xxx | Retirada:YYYY-MM-DD | Devolucao:YYYY-MM-DD
         if (preg_match('/ID:\s*(\S+)\s*\|\s*Registro:\s*(\S+)\s*\|\s*Aluno:\s*(.+?)\s*\|\s*Sala:\s*(.*?)\s*\|\s*Retirada:\s*(\S+)\s*\|\s*Devolucao:\s*(\S+)/', $linha, $m)) {
             $lista[] = [
                 'id'        => $m[1],
@@ -69,19 +70,17 @@ function parse_emprestimos(string $arquivo): array {
 // ── ação: listar/buscar ───────────────────────────────────────────────────────
 
 if ($acao === 'procurar_livros') {
-    $busca  = strtolower(trim($_POST['busca'] ?? ''));
-    $livros = parse_livros($arquivo);
+    $busca       = strtolower(trim($_POST['busca'] ?? ''));
+    $livros      = parse_livros($arquivo);
     $emprestimos = parse_emprestimos($arqEmprestimos);
 
-    // Contar emprestados por registro
     $empCount = [];
     foreach ($emprestimos as $e) {
         $empCount[$e['registro']] = ($empCount[$e['registro']] ?? 0) + 1;
     }
-
     foreach ($livros as &$l) {
-        $l['emprestados']  = $empCount[$l['registro']] ?? 0;
-        $l['disponiveis']  = max(0, $l['quantidade'] - $l['emprestados']);
+        $l['emprestados'] = $empCount[$l['registro']] ?? 0;
+        $l['disponiveis'] = max(0, $l['quantidade'] - $l['emprestados']);
     }
     unset($l);
 
@@ -89,10 +88,10 @@ if ($acao === 'procurar_livros') {
         $livros = array_values(array_filter(
             $livros,
             fn($l) => str_contains(strtolower($l['nome']), $busca)
-                  
+                   || str_contains(strtolower($l['registro']), $busca)
+                   || str_contains(strtolower($l['autor']), $busca)
         ));
     }
-
     echo json_encode(['success' => true, 'livros' => $livros], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -100,20 +99,22 @@ if ($acao === 'procurar_livros') {
 // ── ação: buscar por aluno ────────────────────────────────────────────────────
 
 if ($acao === 'buscar_aluno') {
-    $busca   = strtolower(trim($_POST['busca'] ?? ''));
-    $livros  = parse_livros($arquivo);
-    $emps    = parse_emprestimos($arqEmprestimos);
+    $busca  = strtolower(trim($_POST['busca'] ?? ''));
+    $livros = parse_livros($arquivo);
+    $emps   = parse_emprestimos($arqEmprestimos);
 
     $idx = [];
     foreach ($livros as $l) $idx[$l['registro']] = $l['nome'];
 
     $resultado = [];
     foreach ($emps as $e) {
-        if (!$busca || str_contains(strtolower($e['aluno']), $busca) || str_contains(strtolower($e['sala'] ?? ''), $busca)) {
-            $resultado[] = array_merge($e, ['livro' => $idx[$e['registro']] ?? '?']);
+        if (!$busca
+            || str_contains(strtolower($e['aluno']),      $busca)
+            || str_contains(strtolower($e['sala'] ?? ''), $busca)
+        ) {
+            $resultado[] = array_merge($e, ['livro' => $idx[$e['registro']] ?? 'Livro desconhecido']);
         }
     }
-
     echo json_encode(['success' => true, 'emprestimos' => $resultado], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -127,7 +128,7 @@ if ($acao === 'detalhes_livro') {
 
     $livro = null;
     foreach ($livros as $l) {
-        if ($l['nome'] === $registro) { $livro = $l; break; }
+        if ($l['registro'] === $registro) { $livro = $l; break; }
     }
 
     if (!$livro) {
@@ -136,7 +137,6 @@ if ($acao === 'detalhes_livro') {
     }
 
     $ativos = array_values(array_filter($emprestimos, fn($e) => $e['registro'] === $registro));
-
     $livro['emprestados'] = count($ativos);
     $livro['disponiveis'] = max(0, $livro['quantidade'] - $livro['emprestados']);
     $livro['emprestimos'] = $ativos;
