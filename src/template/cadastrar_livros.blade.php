@@ -80,7 +80,7 @@
     </div>
     <div class="aside-deco">
       <div class="deco-line"></div>
-      <span class="deco-text">E.E. EPHIGÊNIA</span>
+      <span class="deco-text">E.E. EPHIGENIA</span>
       <div class="deco-line"></div>
     </div>
   </aside>

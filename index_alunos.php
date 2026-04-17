@@ -12,7 +12,7 @@ require __DIR__ . '/src/functions/procurar_livro.php';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acervo — Biblioteca E.E. Ephigênia</title>
+  <title>Acervo — Biblioteca E.E. Ephigenia</title>
   <link rel="stylesheet" href="src/static/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -649,7 +649,7 @@ require __DIR__ . '/src/functions/procurar_livro.php';
     <div class="header-inner">
       <div class="logo">
         <span class="logo-pre">Biblioteca</span>
-        <span class="logo-name">E.E. Ephigênia</span>
+        <span class="logo-name">E.E. Ephigenia</span>
       </div>
       <div class="header-search">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -757,7 +757,7 @@ require __DIR__ . '/src/functions/procurar_livro.php';
 
   <!-- FOOTER -->
   <footer class="footer">
-    <span>E.E. Ephigênia</span> — Sistema de Biblioteca Escolar
+    <span>E.E. Ephigenia</span> — Sistema de Biblioteca Escolar
   </footer>
 
 <script>

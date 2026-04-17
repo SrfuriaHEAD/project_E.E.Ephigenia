@@ -179,7 +179,7 @@ function buscarBooks(string $query): ?array {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadastrar — Biblioteca E.E. Ephigênia</title>
+  <title>Cadastrar — Biblioteca E.E. Ephigenia</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="src/static/style.css">
   <style>
@@ -428,7 +428,7 @@ function buscarBooks(string $query): ?array {
   <div class="header-inner">
     <div class="logo-block">
       <span class="logo-pre">Biblioteca</span>
-      <span class="logo-name">E.E. Ephigênia</span>
+      <span class="logo-name">E.E. Ephigenia</span>
     </div>
     <nav class="header-nav">
       <span class="nav-tag">Cadastro</span>
@@ -543,7 +543,7 @@ function buscarBooks(string $query): ?array {
         </div>
         <div class="aside-deco">
           <div class="deco-line"></div>
-          <span class="deco-text">E.E. EPHIGÊNIA</span>
+          <span class="deco-text">E.E. EPHIGENIA</span>
           <div class="deco-line"></div>
         </div>
       </aside>
@@ -555,7 +555,7 @@ function buscarBooks(string $query): ?array {
 
 <footer class="footer">
   <div class="footer-inner">
-    <span class="footer-school">E.E. Ephigênia</span>
+    <span class="footer-school">E.E. Ephigenia</span>
     <span class="footer-sep">/</span>
     <span class="footer-text">Sistema de Biblioteca</span>
     <span class="footer-sep">/</span>

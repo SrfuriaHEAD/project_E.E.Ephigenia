@@ -4,7 +4,7 @@
 // Depende de $arquivo e $arqEmprestimos definidos no index.php
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST'
-    || ($_POST['acao'] ?? '') !== 'devolver_livro') return;
+    || ($_POST['acao'] ?? '') !== 'emprestar_livro') return;
 
 ob_clean();
 header('Content-Type: application/json; charset=utf-8');

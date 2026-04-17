@@ -19,3 +19,4 @@ Nome: Grande Sertão: Veredas | Registro: 17 | Quantidade: 1 | Autor: João Guim
 Nome: A Metamorfose | Registro: 19 | Quantidade: 2 | Autor: Franz Kafka
 Nome: Percy Jackson e o Ladrão de Raios | Registro: 21 | Quantidade: 5 | Autor: Rick Riordan
 Nome: O Diário de Anne Frank | Registro: 22 | Quantidade: 3 | Autor: Anne FrankNome: 
+Nome: Rei Arthur | Registro:  | Quantidade: 01

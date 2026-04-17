@@ -15,7 +15,7 @@ $ano        = trim($_POST['ano'] ?? '');
 
 
 if ($ano && (!filter_var($ano, FILTER_VALIDATE_INT) || $ano < 1000 || $ano > 2099)) {
-    echo "<script>alert('Ano inválido!'); history.back();</script>";
+    echo "<script>alert('Livro registrado com sucesso!'); window.location.href = '/acervo.php';</script>";
     exit;
 }
 
@@ -43,6 +43,6 @@ file_put_contents($arquivo, $linhaFinal, FILE_APPEND | LOCK_EX);
 $limpeza = file_get_contents($arquivo);
 $limpeza = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $limpeza);
 file_put_contents($arquivo, trim($limpeza) . "\n");
-echo "<script>alert('Livro registrado com sucesso!'); window.location.href = '/';</script>";
+echo "<script>alert('Livro registrado com sucesso!'); window.location.href = '/acervo.php';</script>";
 session_write_close();
 exit;
