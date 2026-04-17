@@ -410,7 +410,7 @@
     .logo {
       width: 98px;
       height: 98px;
-      border-radius: 30%;
+      border-radius: 90%;
       object-fit: cover;
       margin-left: 1.5rem;
     }
