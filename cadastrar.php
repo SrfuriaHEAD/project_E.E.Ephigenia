@@ -767,7 +767,6 @@ function buscarBooks(string $query): ?array {
     setField('f-autor',   (livroGemini.autores || []).join(', '));
     setField('f-editora', livroGemini.editora || '');
     setField('f-ano',     livroGemini.ano     || '');
-    document.getElementById('f-registro')?.focus();
   });
 
   function setField(id, val) {

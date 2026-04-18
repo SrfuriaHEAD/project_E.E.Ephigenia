@@ -605,10 +605,9 @@ document.querySelectorAll('.tab').forEach(btn => {
   });
 });
 
-
-// ── Aba: busca por aluno ──────────────────────────────────────────────────
 // ── Aba: busca por aluno ──────────────────────────────────────────────────
 // Monta o layout UMA VEZ (input fixo + div de resultados)
+// ── Aba: busca por aluno ──────────────────────────────────────────────────
 (function initAbaAlunos() {
   const panel = document.getElementById('tab-alunos');
   panel.innerHTML = `
@@ -628,7 +627,7 @@ document.querySelectorAll('.tab').forEach(btn => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => carregarAlunos(this.value.trim()), 300);
   });
-})();
+})(); // ← fecha e executa o IIFE
 
 async function carregarAlunos(q) {
   const resultado = document.getElementById('resultado-alunos');
@@ -663,12 +662,6 @@ async function carregarAlunos(q) {
             </article>`;
         }).join('')}
       </div>`;
-      }
-
-  document.getElementById('search-aluno')?.addEventListener('input', function () {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => carregarAlunos(this.value.trim()), 300);
-  });
 }
 
 // ── Aba: histórico ────────────────────────────────────────────────────────

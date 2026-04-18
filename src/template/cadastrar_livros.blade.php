@@ -47,15 +47,7 @@
         </div>
       </div>
 
-      <div style="display:flex;gap:1rem;flex-wrap:wrap">
-        <div class="field-group" style="flex:1;min-width:130px">
-          <label class="field-label" for="f-registro">Nº de Registro</label>
-          <div class="field-wrap">
-            <input class="field-input" type="text" id="f-registro" name="registro"
-                   placeholder="ex: 23" required autocomplete="off">
-            <span class="field-bar"></span>
-          </div>
-        </div>
+      
 
         <div class="field-group" style="flex:1;min-width:130px">
           <label class="field-label" for="f-quantidade">Qtd. de exemplares</label>
@@ -119,7 +111,6 @@
       <p class="aside-title">Instruções</p>
       <ul class="aside-list">
         <li>O título deve ser único no acervo.</li>
-        <li>O nº de registro não pode se repetir.</li>
         <li>Autor, editora e ano são opcionais.</li>
         <li>Prateleira e faixa etária são opcionais.</li>
         <li>Quantidade mínima: 1 exemplar.</li>
