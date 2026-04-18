@@ -442,6 +442,7 @@
         <span class="nav-tag">Santa Luzia · MG</span>
         <span class="nav-dot"></span>
         <a href="acervo.php" class="nav-link">📚 Biblioteca</a>
+        <a href="index_alunos.php" class="nav-link">Area do aluno</a>
         <span class="nav-dot"></span>
         <span class="nav-year"><?= date('Y') ?></span>
       </nav>

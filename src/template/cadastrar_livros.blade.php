@@ -72,7 +72,7 @@
           <label class="field-label" for="f-prateleira">Prateleira</label>
           <div class="field-wrap">
             <input class="field-input" type="text" id="f-prateleira" name="prateleira"
-                   placeholder="ex: A1, B3, Literatura…" autocomplete="off">
+                   placeholder="ex: P1, P3" autocomplete="off">
             <span class="field-bar"></span>
           </div>
         </div>

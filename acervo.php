@@ -16,6 +16,7 @@ require __DIR__ . '/src/functions/procurar_livro.php';
 require __DIR__ . '/src/functions/emprestar_livro.php';
 require __DIR__ . '/src/functions/devolver_livro.php';
 require __DIR__ . '/src/functions/deletar_livro.php';
+require __DIR__ . '/src/functions/historico.php';
 
 
 
@@ -300,12 +301,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'deletar
   <div class="tabs">
     <button class="tab active" data-tab="acervo">Acervo</button>
     <button class="tab" data-tab="alunos">Busca por aluno</button>
+    <button class="tab" data-tab="historico">Histórico</button>
     <button class="tab" data-tab="alertas">⚠ Alertas <span id="badge-alertas" class="badge" style="display:none"></span></button>
   </div>
 
   <div id="tab-acervo"  class="tab-panel active"><?php include __DIR__ . '/src/template/procurar_livros.blade.php'; ?></div>
   <div id="tab-alunos"  class="tab-panel"></div>
   <div id="tab-alertas" class="tab-panel"></div>
+  <div id="tab-historico" class="tab-panel"></div>
 </main>
 
 <footer class="footer">
@@ -598,17 +601,16 @@ document.querySelectorAll('.tab').forEach(btn => {
     document.getElementById('tab-' + this.dataset.tab).classList.add('active');
     if (this.dataset.tab === 'alunos')  carregarAlunos('');
     if (this.dataset.tab === 'alertas') carregarAlertas();
+    if (this.dataset.tab === 'historico') iniciarHistorico();
   });
 });
 
 
 // ── Aba: busca por aluno ──────────────────────────────────────────────────
-async function carregarAlunos(q) {
+// ── Aba: busca por aluno ──────────────────────────────────────────────────
+// Monta o layout UMA VEZ (input fixo + div de resultados)
+(function initAbaAlunos() {
   const panel = document.getElementById('tab-alunos');
-  const data  = await post({ acao: 'buscar_aluno', busca: q });
-  if (!data.success) return;
-
-  const emps = data.emprestimos;
   panel.innerHTML = `
     <div class="search-header" style="margin-bottom:1.5rem">
       <span class="section-label">ALUNOS</span>
@@ -616,38 +618,141 @@ async function carregarAlunos(q) {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
         </svg>
-        <input id="search-aluno" type="text" placeholder="Nome ou sala…" autocomplete="off" value="${esc(q)}">
+        <input id="search-aluno" type="text" placeholder="Nome ou sala…" autocomplete="off">
       </div>
-      <span style="font-family:var(--font-mono);font-size:0.6rem;color:#666">${emps.length} empréstimo${emps.length!==1?'s':''} ativo${emps.length!==1?'s':''}</span>
+      <span id="count-alunos" style="font-family:var(--font-mono);font-size:0.6rem;color:#666"></span>
     </div>
-    ${emps.length === 0
-      ? '<p class="empty-state" style="padding:2rem;color:#333;font-style:italic;font-family:var(--font-mono);font-size:0.75rem">Nenhum empréstimo encontrado.</p>'
-      : `<div class="book-grid" style="grid-template-columns:1fr">
-          ${emps.map(e => {
-            const dias = diasRestantes(e.devolucao);
-            let cls='', info=`Devolver até ${fmtDate(e.devolucao)}`;
-            if (dias<0)       { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`; }
-            else if (dias===0){ cls='hoje';     info='⚠ Devolver HOJE'; }
-            else if (dias<=3)   info=`Em ${dias} dia${dias!==1?'s':''} (${fmtDate(e.devolucao)})`;
-            return `
-             <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
-              <div class="book-card-accent"></div>
-                <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
-                  <div>
-                    <p class="book-title">${esc(e.aluno)}${e.sala ? ` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>` : ''}</p>
-                    <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)} · Retirada: ${fmtDate(e.retirada)}</p>
-                  </div>
-                  <p class="loan-devol ${cls}" style="font-family:var(--font-mono);font-size:0.65rem">${info}</p>
+    <div id="resultado-alunos"></div>`;
+
+  document.getElementById('search-aluno').addEventListener('input', function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => carregarAlunos(this.value.trim()), 300);
+  });
+})();
+
+async function carregarAlunos(q) {
+  const resultado = document.getElementById('resultado-alunos');
+  const contador  = document.getElementById('count-alunos');
+  if (!resultado) return;
+
+  const data = await post({ acao: 'buscar_aluno', busca: q });
+  if (!data.success) return;
+
+  const emps = data.emprestimos;
+  if (contador) contador.textContent = `${emps.length} empréstimo${emps.length!==1?'s':''} ativo${emps.length!==1?'s':''}`;
+
+  resultado.innerHTML = emps.length === 0
+    ? '<p class="empty-state" style="padding:2rem;color:#333;font-style:italic;font-family:var(--font-mono);font-size:0.75rem">Nenhum empréstimo encontrado.</p>'
+    : `<div class="book-grid" style="grid-template-columns:1fr">
+        ${emps.map(e => {
+          const dias = diasRestantes(e.devolucao);
+          let cls='', info=`Devolver até ${fmtDate(e.devolucao)}`;
+          if (dias<0)       { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`; }
+          else if (dias===0){ cls='hoje';     info='⚠ Devolver HOJE'; }
+          else if (dias<=3)   info=`Em ${dias} dia${dias!==1?'s':''} (${fmtDate(e.devolucao)})`;
+          return `
+           <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
+            <div class="book-card-accent"></div>
+              <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+                <div>
+                  <p class="book-title">${esc(e.aluno)}${e.sala ? ` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>` : ''}</p>
+                  <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)} · Retirada: ${fmtDate(e.retirada)}</p>
                 </div>
-              </article>`;
-          }).join('')}
-        </div>`
-    }`;
+                <p class="loan-devol ${cls}" style="font-family:var(--font-mono);font-size:0.65rem">${info}</p>
+              </div>
+            </article>`;
+        }).join('')}
+      </div>`;
+      }
 
   document.getElementById('search-aluno')?.addEventListener('input', function () {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => carregarAlunos(this.value.trim()), 300);
   });
+}
+
+// ── Aba: histórico ────────────────────────────────────────────────────────
+let historicoIniciado = false;
+function iniciarHistorico() {
+  if (historicoIniciado) return;
+  historicoIniciado = true;
+  const panel = document.getElementById('tab-historico');
+  panel.innerHTML = `
+    <div class="search-header" style="margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem">
+      <span class="section-label">HISTÓRICO</span>
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input id="search-hist" type="text" placeholder="Aluno, livro ou sala…" autocomplete="off">
+      </div>
+      <select id="filter-ano-hist" style="background:#111;border:1px solid #1e1e1e;color:#e0e0e0;font-family:var(--font-mono);font-size:0.8rem;padding:0.55rem 0.75rem;outline:none;border-radius:var(--radius)">
+        <option value="">Todos os anos</option>
+        ${[...Array(3)].map((_,i) => {
+          const a = new Date().getFullYear() - i;
+          return `<option value="${a}" ${i===0?'selected':''}>${a}</option>`;
+        }).join('')}
+      </select>
+      <span id="count-hist" style="font-family:var(--font-mono);font-size:0.6rem;color:#666"></span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:1.5rem;align-items:start">
+      <div id="resultado-hist"></div>
+      <div id="ranking-hist"></div>
+    </div>`;
+
+  const buscarHist = () => carregarHistorico(
+    document.getElementById('search-hist').value.trim(),
+    document.getElementById('filter-ano-hist').value
+  );
+
+  document.getElementById('search-hist').addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(buscarHist, 300); });
+  document.getElementById('filter-ano-hist').addEventListener('change', buscarHist);
+  buscarHist();
+}
+
+async function carregarHistorico(q, ano) {
+  const resultado = document.getElementById('resultado-hist');
+  const ranking   = document.getElementById('ranking-hist');
+  const contador  = document.getElementById('count-hist');
+  if (!resultado) return;
+
+  const data = await post({ acao: 'buscar_historico', busca: q, ano });
+  if (!data.success) return;
+
+  const regs = data.registros;
+  if (contador) contador.textContent = `${regs.length} empréstimo${regs.length!==1?'s':''}`;
+
+  resultado.innerHTML = regs.length === 0
+    ? '<p class="empty-state" style="padding:2rem;color:#333;font-style:italic;font-family:var(--font-mono);font-size:0.75rem">Nenhum registro encontrado.</p>'
+    : `<div class="book-grid" style="grid-template-columns:1fr">
+        ${regs.map(e => `
+          <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
+            <div class="book-card-accent"></div>
+            <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+              <div>
+                <p class="book-title">${esc(e.aluno)}${e.sala?` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>`:''}</p>
+                <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)}</p>
+              </div>
+              <div style="text-align:right">
+                <p style="font-family:var(--font-mono);font-size:0.6rem;color:#666">Retirada: ${fmtDate(e.retirada)}</p>
+                <p style="font-family:var(--font-mono);font-size:0.6rem;color:#555">Dev: ${fmtDate(e.devolucao)}</p>
+              </div>
+            </div>
+          </article>`).join('')}
+      </div>`;
+
+  ranking.innerHTML = data.ranking.length === 0 ? '' : `
+    <div style="background:#111;border:1px solid #1e1e1e;border-top:3px solid var(--rust);padding:1.5rem">
+      <p style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.25em;color:var(--rust);margin-bottom:1.25rem;text-transform:uppercase">— Top leitores</p>
+      ${data.ranking.map((r, i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid #1a1a1a">
+          <div>
+            <span style="font-family:var(--font-mono);font-size:0.55rem;color:#555;margin-right:0.5rem">#${i+1}</span>
+            <span style="font-family:var(--font-display);font-size:0.85rem;color:#ddd">${esc(r.aluno)}</span>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--rust);font-weight:500">${r.total} livro${r.total!==1?'s':''}</span>
+        </div>`).join('')}
+    </div>`;
 }
 
 // ── Aba: alertas ──────────────────────────────────────────────────────────
@@ -671,23 +776,24 @@ async function carregarAlertas() {
       <div style="margin-bottom:2rem">
         <p style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.25em;color:${cor};margin-bottom:1rem;text-transform:uppercase">— ${titulo} (${lista.length})</p>
         <div class="book-grid" style="grid-template-columns:1fr">
-          ${lista.map(e => `
-          <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
-            <div class="book-card-accent" style="background:${cor}"></div>
-              <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
-                <div>
-                  <p class="book-title">${esc(e.aluno)}${e.sala?` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>`:''}</p>
-                  <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)} · Retirada: ${fmtDate(e.retirada)}</p>
+          ${lista.map(e => {
+            const dias = diasRestantes(e.devolucao); // ← calculado UMA vez, reutilizado abaixo
+            let label;
+            if      (dias < 0)  label = `⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`;
+            else if (dias === 0) label = '⚠ Devolver HOJE';
+            else                 label = `Devolver até ${fmtDate(e.devolucao)}`;
+            return `
+            <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
+              <div class="book-card-accent" style="background:${cor}"></div>
+                <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+                  <div>
+                    <p class="book-title">${esc(e.aluno)}${e.sala?` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>`:''}</p>
+                    <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)} · Retirada: ${fmtDate(e.retirada)}</p>
+                  </div>
+                  <p style="font-family:var(--font-mono);font-size:0.65rem;color:${cor};white-space:nowrap">${label}</p>
                 </div>
-                <p style="font-family:var(--font-mono);font-size:0.65rem;color:${cor};white-space:nowrap">
-                  ${diasRestantes(e.devolucao) < 0
-                    ? `⚠ Atrasado ${Math.abs(diasRestantes(e.devolucao))} dia${Math.abs(diasRestantes(e.devolucao))!==1?'s':''}`
-                    : diasRestantes(e.devolucao) === 0
-                      ? '⚠ Devolver HOJE'
-                      : `Devolver até ${fmtDate(e.devolucao)}`}
-                </p>
-              </div>
-            </article>`).join('')}
+              </article>`;
+          }).join('')}
         </div>
       </div>`;
   }
