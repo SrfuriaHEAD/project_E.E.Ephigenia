@@ -399,218 +399,275 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'deletar
 
 <script>
   // ── Garante que o DOM está pronto ────────────────────────────────────────
-  (function () {
-    'use strict';
+ (function () {
+  'use strict';
 
-    let modalRegistro = null;
+  let modalRegistro = null;
+  let searchTimer   = null;
 
-    // ── Helpers ──────────────────────────────────────────────────────────
-    function esc(s) {
-      return String(s)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-    function fmtDate(iso) {
+  // ── Helpers ────────────────────────────────────────────────────────────
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function fmtDate(iso) {
     if (!iso) return '—';
     const [y,m,d] = iso.split('-');
     return `${d}/${m}/${y}`;
-    }
-    function brToIso(br) {
+  }
+  function brToIso(br) {
     const [d,m,y] = br.split('/');
     return `${y}-${m}-${d}`;
-    }
+  }
+  function diasRestantes(iso) {
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const devol = new Date(iso + 'T00:00:00');
+    return Math.round((devol - hoje) / 86400000);
+  }
+  function post(dados) {
+    const fd = new FormData();
+    Object.entries(dados).forEach(([k,v]) => fd.append(k,v));
+    return fetch(window.location.pathname, { method:'POST', body:fd }).then(r=>r.json());
+  }
 
-    function diasRestantes(iso) {
-      const hoje  = new Date(); hoje.setHours(0,0,0,0);
-      const devol = new Date(iso + 'T00:00:00');
-      return Math.round((devol - hoje) / 86400000);
+  // ── Grid (aba Acervo) ──────────────────────────────────────────────────
+  function renderGrid(livros) {
+    const grid   = document.getElementById('grid');
+    const status = document.getElementById('status-bar');
+    if (!livros.length) {
+      grid.innerHTML = '<p class="empty-state">Nenhum livro encontrado.</p>';
+      status.textContent = '0 resultados';
+      return;
     }
-    function post(dados) {
-      const fd = new FormData();
-      Object.entries(dados).forEach(([k,v]) => fd.append(k,v));
-      return fetch(window.location.pathname, { method:'POST', body:fd }).then(r=>r.json());
-    }
-
-    // ── Grid ─────────────────────────────────────────────────────────────
-    let searchTimer = null;
-
-    function renderGrid(livros) {
-      const grid   = document.getElementById('grid');
-      const status = document.getElementById('status-bar');
-      if (!livros.length) {
-        grid.innerHTML = '<p class="empty-state">Nenhum livro encontrado.</p>';
-        status.textContent = '0 resultados';
-        return;
-      }
-      status.textContent = `${livros.length} livro${livros.length!==1?'s':''}`;
-      grid.innerHTML = livros.map(l => {
-        const pct   = l.quantidade > 0 ? Math.round((l.disponiveis/l.quantidade)*100) : 0;
-        const cls   = l.disponiveis===0 ? 'esgotado' : (l.disponiveis<=1 ? 'alerta' : '');
-        const label = l.disponiveis===0
-          ? '<span>0</span> disponíveis'
-          : `<span>${l.disponiveis}</span> disponíve${l.disponiveis!==1?'is':'l'}`;
-        return `
-          <article class="book-card" onclick="window._abrirModal('${esc(l.registro)}')">
+    status.textContent = `${livros.length} livro${livros.length!==1?'s':''}`;
+    grid.innerHTML = livros.map(l => {
+      const pct   = l.quantidade > 0 ? Math.round((l.disponiveis/l.quantidade)*100) : 0;
+      const cls   = l.disponiveis===0 ? 'esgotado' : (l.disponiveis<=1 ? 'alerta' : '');
+      const label = l.disponiveis===0
+        ? '<span>0</span> disponíveis'
+        : `<span>${l.disponiveis}</span> disponíve${l.disponiveis!==1?'is':'l'}`;
+      return `
+        <article class="book-card" onclick="window._abrirModal('${esc(l.registro)}')">
           <div class="book-card-accent"></div>
-            <div class="book-card-body">
-              <p class="book-title">${esc(l.nome)}</p>
-              <p class="book-reg">REG #${esc(l.registro)}</p>
-              <p class="book-qty ${cls}">${label}</p>
-              <div class="book-avail-bar">
-                <div class="book-avail-fill" style="width:${pct}%"></div>
-              </div>
+          <div class="book-card-body">
+            <p class="book-title">${esc(l.nome)}</p>
+            <p class="book-reg">REG #${esc(l.registro)}</p>
+            <p class="book-qty ${cls}">${label}</p>
+            <div class="book-avail-bar">
+              <div class="book-avail-fill" style="width:${pct}%"></div>
             </div>
-          </article>`;
-      }).join('');
-    }
+          </div>
+        </article>`;
+    }).join('');
+  }
 
-    async function buscarGrid(q) {
-      try {
-        const data = await post({ acao:'procurar_livros', busca: q||'' });
-        if (data.success) renderGrid(data.livros);
-      } catch {
-        document.getElementById('grid').innerHTML =
-          '<p class="empty-state">⚠ Erro ao carregar acervo.</p>';
-      }
+  async function buscarGrid(q) {
+    try {
+      const data = await post({ acao:'procurar_livros', busca: q||'' });
+      if (data.success) renderGrid(data.livros);
+    } catch {
+      document.getElementById('grid').innerHTML =
+        '<p class="empty-state">⚠ Erro ao carregar acervo.</p>';
     }
+  }
 
-    document.getElementById('search').addEventListener('input', function () {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => buscarGrid(this.value.trim()), 300);
+  document.getElementById('search').addEventListener('input', function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => buscarGrid(this.value.trim()), 300);
+  });
+
+  buscarGrid(''); // carga inicial
+
+  // ── Modal ──────────────────────────────────────────────────────────────
+  const overlay  = document.getElementById('modal-overlay');
+  const btnClose = document.getElementById('modal-close');
+
+  function fecharModal() {
+    overlay.classList.remove('open');
+    modalRegistro = null;
+    buscarGrid(document.getElementById('search').value.trim());
+  }
+
+  btnClose.addEventListener('click', fecharModal);
+  overlay.addEventListener('click', function(e) { if (e.target===this) fecharModal(); });
+  document.addEventListener('keydown', e => { if (e.key==='Escape') fecharModal(); });
+
+  function aplicarFiltros() {
+    const q    = document.getElementById('filter-aluno').value.trim().toLowerCase();
+    const data = document.getElementById('filter-data').value;
+    document.querySelectorAll('#loans-list .loan-row').forEach(row => {
+      const aluno = (row.dataset.aluno||'').toLowerCase();
+      const sala  = (row.dataset.sala ||'').toLowerCase();
+      const devol = row.dataset.devol || '';
+      const matchAluno = !q || aluno.includes(q) || sala.includes(q);
+      const dataISO    = data.length === 10 ? brToIso(data) : '';
+      const matchData  = !dataISO || devol === dataISO;
+      row.classList.toggle('hidden', !matchAluno || !matchData);
     });
+  }
 
-    buscarGrid('');
+  document.getElementById('filter-aluno').addEventListener('input', aplicarFiltros);
+  document.getElementById('filter-data').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g,'');
+    if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+    if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5);
+    this.value = v.slice(0,10);
+    aplicarFiltros();
+  });
 
-    // ── Modal ─────────────────────────────────────────────────────────────
-    const overlay = document.getElementById('modal-overlay');
-    const btnClose= document.getElementById('modal-close');
+  function renderLoans(livro) {
+    const extras = [
+      livro.autor       ? `Autor: ${livro.autor}` : '',
+      livro.prateleira  ? `Prateleira: ${livro.prateleira}` : '',
+      livro.faixaEtaria ? `Nível: ${livro.faixaEtaria}` : '',
+    ].filter(Boolean).join(' · ');
+    document.getElementById('modal-reg').textContent   = `REG #${livro.registro}` + (extras ? ` · ${extras}` : '');
+    document.getElementById('modal-title').textContent = livro.nome;
+    document.getElementById('stat-total').textContent  = livro.quantidade;
 
-    function fecharModal() {
-      overlay.classList.remove('open');
-      modalRegistro = null;
-      buscarGrid(document.getElementById('search').value.trim());
+    const el = document.getElementById('stat-emprestados');
+    el.textContent = livro.emprestados;
+    el.className   = 'stat-value' + (livro.emprestados>0?' warn':'');
+
+    const ed = document.getElementById('stat-disponiveis');
+    ed.textContent = livro.disponiveis;
+    ed.className   = 'stat-value ' + (livro.disponiveis===0?'bad':livro.disponiveis<=1?'warn':'ok');
+
+    document.getElementById('filter-aluno').value = '';
+    document.getElementById('filter-data').value  = '';
+
+    const lista = document.getElementById('loans-list');
+    if (!livro.emprestimos || livro.emprestimos.length===0) {
+      lista.innerHTML = '<p class="no-loans">Nenhum empréstimo ativo.</p>';
+      return;
     }
+    lista.innerHTML = livro.emprestimos.map(e => {
+      const dias = diasRestantes(e.devolucao);
+      let cls='', info=`Devolver até ${fmtDate(e.devolucao)}`;
+      if (dias<0)       { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`; }
+      else if (dias===0){ cls='hoje';     info='⚠ Devolver HOJE'; }
+      else if (dias<=2)   info=`Em ${dias} dia${dias!==1?'s':''} (${fmtDate(e.devolucao)})`;
+      const sala = e.sala ? ` — ${esc(e.sala)}` : '';
+      return `
+        <div class="loan-row" id="row-${esc(e.id)}"
+             data-aluno="${esc(e.aluno)}" data-sala="${esc(e.sala||'')}" data-devol="${esc(e.devolucao)}">
+          <div>
+            <p class="loan-aluno">${esc(e.aluno)}<span class="loan-sala">${sala}</span></p>
+            <p class="loan-date">Retirada: ${fmtDate(e.retirada)}</p>
+          </div>
+          <p class="loan-devol ${cls}">${info}</p>
+          <button class="btn-devolver" type="button" onclick="window._devolver('${esc(e.id)}')">Devolvido ✓</button>
+        </div>`;
+    }).join('');
+  }
 
-    btnClose.addEventListener('click', fecharModal);
-    overlay.addEventListener('click', function(e) { if (e.target===this) fecharModal(); });
-    document.addEventListener('keydown', e => { if (e.key==='Escape') fecharModal(); });
+  async function abrirModal(registro) {
+    modalRegistro = registro;
+    document.getElementById('loan-aluno').value     = '';
+    document.getElementById('loan-sala').value      = '';
+    document.getElementById('loan-devol').value     = '';
+    document.getElementById('loan-msg').textContent = '';
 
-    function aplicarFiltros() {
-      const q    = document.getElementById('filter-aluno').value.trim().toLowerCase();
-      const data = document.getElementById('filter-data').value;
-      document.querySelectorAll('#loans-list .loan-row').forEach(row => {
-        const aluno = (row.dataset.aluno||'').toLowerCase();
-        const sala  = (row.dataset.sala ||'').toLowerCase();
-        const devol = row.dataset.devol || '';
-        const matchAluno = !q    || aluno.includes(q) || sala.includes(q);
-        const dataISO = data.length === 10 ? brToIso(data) : '';
-        const matchData = !dataISO || devol === dataISO;
-        row.classList.toggle('hidden', !matchAluno || !matchData);
-      });
-    }
+    const amanha = new Date(); amanha.setDate(amanha.getDate()+1);
+    const _pad = n => String(n).padStart(2,'0');
+    document.getElementById('loan-devol').placeholder =
+      `mín: ${_pad(amanha.getDate())}/${_pad(amanha.getMonth()+1)}/${amanha.getFullYear()}`;
 
-    document.getElementById('filter-aluno').addEventListener('input', aplicarFiltros);
-    document.getElementById('filter-data').addEventListener('input', function () {
-        let v = this.value.replace(/\D/g,'');
-        if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
-        if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5);
-        this.value = v.slice(0,10);
-        aplicarFiltros();
-    });
-
-    function renderLoans(livro) {
-      const extras = [
-        livro.autor       ? `Autor: ${livro.autor}` : '',
-        livro.prateleira  ? `Prateleira: ${livro.prateleira}` : '',
-        livro.faixaEtaria ? `Nível: ${livro.faixaEtaria}` : '',
-      ].filter(Boolean).join(' · ');
-      document.getElementById('modal-reg').textContent   = `REG #${livro.registro}` + (extras ? ` · ${extras}` : '');
-      document.getElementById('modal-title').textContent = livro.nome;
-      document.getElementById('stat-total').textContent  = livro.quantidade;
-
-      const el = document.getElementById('stat-emprestados');
-      el.textContent = livro.emprestados;
-      el.className   = 'stat-value' + (livro.emprestados>0?' warn':'');
-
-      const ed = document.getElementById('stat-disponiveis');
-      ed.textContent = livro.disponiveis;
-      ed.className   = 'stat-value '+(livro.disponiveis===0?'bad':livro.disponiveis<=1?'warn':'ok');
-
-      // limpa filtros ao abrir
-      document.getElementById('filter-aluno').value = '';
-      document.getElementById('filter-data').value  = '';
-
-      const lista = document.getElementById('loans-list');
-      if (!livro.emprestimos || livro.emprestimos.length===0) {
-        lista.innerHTML = '<p class="no-loans">Nenhum empréstimo ativo.</p>';
-        return;
+    try {
+      const data = await post({ acao:'detalhes_livro', registro });
+      if (data.success) {
+        renderLoans(data.livro);
+        overlay.classList.add('open');
+        setTimeout(() => document.getElementById('loan-aluno').focus(), 300);
       }
-      lista.innerHTML = livro.emprestimos.map(e => {
-        const dias = diasRestantes(e.devolucao);
-        let cls='', info=`Devolver até ${fmtDate(e.devolucao)}`;
-        if (dias<0)      { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`; }
-        else if (dias===0){ cls='hoje';     info='⚠ Devolver HOJE'; }
-        else if (dias<=2)  info=`Em ${dias} dia${dias!==1?'s':''} (${fmtDate(e.devolucao)})`;
-        const sala = e.sala ? ` — ${esc(e.sala)}` : '';
-        return `
-          <div class="loan-row" id="row-${esc(e.id)}"
-               data-aluno="${esc(e.aluno)}" data-sala="${esc(e.sala||'')}" data-devol="${esc(e.devolucao)}">
-            <div>
-              <p class="loan-aluno">${esc(e.aluno)}<span class="loan-sala">${sala}</span></p>
-              <p class="loan-date">Retirada: ${fmtDate(e.retirada)}</p>
-            </div>
-            <p class="loan-devol ${cls}">${info}</p>
-            <button class="btn-devolver" type="button" onclick="window._devolver('${esc(e.id)}')">Devolvido ✓</button>
-          </div>`;
-      }).join('');
-    }
+    } catch { console.error('Erro ao carregar modal.'); }
+  }
 
-    async function abrirModal(registro) {
-      modalRegistro = registro;
+  window._abrirModal = abrirModal;
+
+  // ── Máscara data devolução ─────────────────────────────────────────────
+  document.getElementById('loan-devol').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g,'');
+    if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
+    if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5);
+    this.value = v.slice(0,10);
+  });
+
+  // ── Emprestar ──────────────────────────────────────────────────────────
+  document.getElementById('btn-emprestar').addEventListener('click', async () => {
+    const aluno        = document.getElementById('loan-aluno').value.trim();
+    const sala         = document.getElementById('loan-sala').value.trim();
+    const devolucaoRaw = document.getElementById('loan-devol').value;
+    const devolucao    = devolucaoRaw.length === 10 ? brToIso(devolucaoRaw) : '';
+    const msg          = document.getElementById('loan-msg');
+
+    if (!aluno || !devolucao) {
+      msg.textContent = 'Preencha ao menos o nome e a data (DD/MM/AAAA).';
+      msg.style.color = '#cc6600'; return;
+    }
+    const [dD,dM,dY] = devolucaoRaw.split('/');
+    const dtDevol = new Date(+dY, +dM-1, +dD);
+    const dtHoje  = new Date(); dtHoje.setHours(0,0,0,0);
+    if (isNaN(dtDevol) || dtDevol <= dtHoje) {
+      msg.textContent = 'A data de devolução deve ser a partir de amanhã.';
+      msg.style.color = '#cc6600'; return;
+    }
+    const data = await post({ acao:'emprestar_livro', registro:modalRegistro, aluno, sala, devolucao });
+    msg.textContent = data.msg;
+    msg.style.color = data.success ? '#4caf7d' : '#cc4400';
+    if (data.success) {
       document.getElementById('loan-aluno').value = '';
       document.getElementById('loan-sala').value  = '';
       document.getElementById('loan-devol').value = '';
-      document.getElementById('loan-msg').textContent = '';
-
-      // data mínima = amanhã — mostra no placeholder do campo
-      const amanha = new Date(); amanha.setDate(amanha.getDate()+1);
-      const _pad = n => String(n).padStart(2,'0');
-      const amanhaStr = `${_pad(amanha.getDate())}/${_pad(amanha.getMonth()+1)}/${amanha.getFullYear()}`;
-      document.getElementById('loan-devol').placeholder = `mín: ${amanhaStr}`;
-
-      try {
-        const data = await post({ acao:'detalhes_livro', registro });
-        if (data.success) {
-          renderLoans(data.livro);
-          overlay.classList.add('open');
-          // foca no campo após animação
-          setTimeout(()=>document.getElementById('loan-aluno').focus(), 300);
-        }
-      } catch { console.error('Erro ao carregar modal.'); }
+      await abrirModal(modalRegistro);
     }
-
-    // expõe globalmente para os onclick inline do grid (gerado dinamicamente)
-    window._abrirModal = abrirModal;
-
-    // ── Abas ──────────────────────────────────────────────────────────────────
-document.querySelectorAll('.tab').forEach(btn => {
-  btn.addEventListener('click', function () {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    this.classList.add('active');
-    document.getElementById('tab-' + this.dataset.tab).classList.add('active');
-    if (this.dataset.tab === 'alunos')  carregarAlunos('');
-    if (this.dataset.tab === 'alertas') carregarAlertas();
-    if (this.dataset.tab === 'historico') iniciarHistorico();
   });
-});
 
-// ── Aba: busca por aluno ──────────────────────────────────────────────────
-// Monta o layout UMA VEZ (input fixo + div de resultados)
-// ── Aba: busca por aluno ──────────────────────────────────────────────────
-(function initAbaAlunos() {
-  const panel = document.getElementById('tab-alunos');
-  panel.innerHTML = `
+  // ── Devolver ───────────────────────────────────────────────────────────
+  window._devolver = async function(id) {
+    const data = await post({ acao:'devolver_livro', id });
+    if (data.success) await abrirModal(modalRegistro);
+    else alert(data.msg);
+  };
+
+  // ── Deletar ────────────────────────────────────────────────────────────
+  document.getElementById('btn-deletar').addEventListener('click', async () => {
+    if (!confirm(`⚠️ APAGAR LIVRO PERMANENTEMENTE\n\nREG #${modalRegistro}\n"${document.getElementById('modal-title').textContent}"\n\nCONFIRMAR?`)) return;
+    const btn = document.getElementById('btn-deletar');
+    const msg = document.getElementById('delete-msg');
+    btn.textContent = '⏳ Apagando...';
+    btn.disabled = true;
+    try {
+      const data = await post({ acao:'deletar_livro', registro: modalRegistro });
+      msg.textContent = data.msg;
+      msg.style.color = data.success ? '#4caf7d' : '#cc4400';
+      if (data.success) { setTimeout(fecharModal, 1500); }
+      else { btn.textContent = '🗑️ APAGAR LIVRO DO SISTEMA'; btn.disabled = false; }
+    } catch {
+      msg.textContent = 'Erro de conexão';
+      msg.style.color = '#cc4400';
+      btn.textContent = '🗑️ APAGAR LIVRO DO SISTEMA';
+      btn.disabled = false;
+    }
+  });
+
+  // ── Abas ───────────────────────────────────────────────────────────────
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+      if (this.dataset.tab === 'alunos')    carregarAlunos('');
+      if (this.dataset.tab === 'alertas')   carregarAlertas();
+      if (this.dataset.tab === 'historico') iniciarHistorico();
+    });
+  });
+
+  // ── Aba: Alunos ────────────────────────────────────────────────────────
+  // Monta estrutura fixa UMA vez no carregamento da página
+  document.getElementById('tab-alunos').innerHTML = `
     <div class="search-header" style="margin-bottom:1.5rem">
       <span class="section-label">ALUNOS</span>
       <div class="search-wrap">
@@ -627,186 +684,177 @@ document.querySelectorAll('.tab').forEach(btn => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => carregarAlunos(this.value.trim()), 300);
   });
-})(); // ← fecha e executa o IIFE
 
-async function carregarAlunos(q) {
-  const resultado = document.getElementById('resultado-alunos');
-  const contador  = document.getElementById('count-alunos');
-  if (!resultado) return;
-
-  const data = await post({ acao: 'buscar_aluno', busca: q });
-  if (!data.success) return;
-
-  const emps = data.emprestimos;
-  if (contador) contador.textContent = `${emps.length} empréstimo${emps.length!==1?'s':''} ativo${emps.length!==1?'s':''}`;
-
-  resultado.innerHTML = emps.length === 0
-    ? '<p class="empty-state" style="padding:2rem;color:#333;font-style:italic;font-family:var(--font-mono);font-size:0.75rem">Nenhum empréstimo encontrado.</p>'
-    : `<div class="book-grid" style="grid-template-columns:1fr">
-        ${emps.map(e => {
-          const dias = diasRestantes(e.devolucao);
-          let cls='', info=`Devolver até ${fmtDate(e.devolucao)}`;
-          if (dias<0)       { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`; }
-          else if (dias===0){ cls='hoje';     info='⚠ Devolver HOJE'; }
-          else if (dias<=3)   info=`Em ${dias} dia${dias!==1?'s':''} (${fmtDate(e.devolucao)})`;
-          return `
-           <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
-            <div class="book-card-accent"></div>
-              <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
-                <div>
-                  <p class="book-title">${esc(e.aluno)}${e.sala ? ` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>` : ''}</p>
-                  <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)} · Retirada: ${fmtDate(e.retirada)}</p>
-                </div>
-                <p class="loan-devol ${cls}" style="font-family:var(--font-mono);font-size:0.65rem">${info}</p>
-              </div>
-            </article>`;
-        }).join('')}
-      </div>`;
-}
-
-// ── Aba: histórico ────────────────────────────────────────────────────────
-let historicoIniciado = false;
-function iniciarHistorico() {
-  if (historicoIniciado) return;
-  historicoIniciado = true;
-  const panel = document.getElementById('tab-historico');
-  panel.innerHTML = `
-    <div class="search-header" style="margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem">
-      <span class="section-label">HISTÓRICO</span>
-      <div class="search-wrap">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-        </svg>
-        <input id="search-hist" type="text" placeholder="Aluno, livro ou sala…" autocomplete="off">
-      </div>
-      <select id="filter-ano-hist" style="background:#111;border:1px solid #1e1e1e;color:#e0e0e0;font-family:var(--font-mono);font-size:0.8rem;padding:0.55rem 0.75rem;outline:none;border-radius:var(--radius)">
-        <option value="">Todos os anos</option>
-        ${[...Array(3)].map((_,i) => {
-          const a = new Date().getFullYear() - i;
-          return `<option value="${a}" ${i===0?'selected':''}>${a}</option>`;
-        }).join('')}
-      </select>
-      <span id="count-hist" style="font-family:var(--font-mono);font-size:0.6rem;color:#666"></span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 280px;gap:1.5rem;align-items:start">
-      <div id="resultado-hist"></div>
-      <div id="ranking-hist"></div>
-    </div>`;
-
-  const buscarHist = () => carregarHistorico(
-    document.getElementById('search-hist').value.trim(),
-    document.getElementById('filter-ano-hist').value
-  );
-
-  document.getElementById('search-hist').addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(buscarHist, 300); });
-  document.getElementById('filter-ano-hist').addEventListener('change', buscarHist);
-  buscarHist();
-}
-
-async function carregarHistorico(q, ano) {
-  const resultado = document.getElementById('resultado-hist');
-  const ranking   = document.getElementById('ranking-hist');
-  const contador  = document.getElementById('count-hist');
-  if (!resultado) return;
-
-  const data = await post({ acao: 'buscar_historico', busca: q, ano });
-  if (!data.success) return;
-
-  const regs = data.registros;
-  if (contador) contador.textContent = `${regs.length} empréstimo${regs.length!==1?'s':''}`;
-
-  resultado.innerHTML = regs.length === 0
-    ? '<p class="empty-state" style="padding:2rem;color:#333;font-style:italic;font-family:var(--font-mono);font-size:0.75rem">Nenhum registro encontrado.</p>'
-    : `<div class="book-grid" style="grid-template-columns:1fr">
-        ${regs.map(e => `
-          <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
-            <div class="book-card-accent"></div>
-            <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
-              <div>
-                <p class="book-title">${esc(e.aluno)}${e.sala?` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>`:''}</p>
-                <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)}</p>
-              </div>
-              <div style="text-align:right">
-                <p style="font-family:var(--font-mono);font-size:0.6rem;color:#666">Retirada: ${fmtDate(e.retirada)}</p>
-                <p style="font-family:var(--font-mono);font-size:0.6rem;color:#555">Dev: ${fmtDate(e.devolucao)}</p>
-              </div>
-            </div>
-          </article>`).join('')}
-      </div>`;
-
-  ranking.innerHTML = data.ranking.length === 0 ? '' : `
-    <div style="background:#111;border:1px solid #1e1e1e;border-top:3px solid var(--rust);padding:1.5rem">
-      <p style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.25em;color:var(--rust);margin-bottom:1.25rem;text-transform:uppercase">— Top leitores</p>
-      ${data.ranking.map((r, i) => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid #1a1a1a">
-          <div>
-            <span style="font-family:var(--font-mono);font-size:0.55rem;color:#555;margin-right:0.5rem">#${i+1}</span>
-            <span style="font-family:var(--font-display);font-size:0.85rem;color:#ddd">${esc(r.aluno)}</span>
-          </div>
-          <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--rust);font-weight:500">${r.total} livro${r.total!==1?'s':''}</span>
-        </div>`).join('')}
-    </div>`;
-}
-
-// ── Aba: alertas ──────────────────────────────────────────────────────────
-async function carregarAlertas() {
-  const panel = document.getElementById('tab-alertas');
-  const data  = await post({ acao: 'buscar_aluno', busca: '' });
-  if (!data.success) return;
-
-  const hoje      = data.emprestimos.filter(e => diasRestantes(e.devolucao) === 0);
-  const atrasados = data.emprestimos.filter(e => diasRestantes(e.devolucao) < 0);
-  const proximos  = data.emprestimos.filter(e => { const d=diasRestantes(e.devolucao); return d>0 && d<=3; });
-
-  const total = hoje.length + atrasados.length + proximos.length;
-  const badge = document.getElementById('badge-alertas');
-  if (total > 0) { badge.textContent = total; badge.style.display = 'inline'; }
-  else badge.style.display = 'none';
-
-  function secao(titulo, cor, lista) {
-    if (!lista.length) return '';
-    return `
-      <div style="margin-bottom:2rem">
-        <p style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.25em;color:${cor};margin-bottom:1rem;text-transform:uppercase">— ${titulo} (${lista.length})</p>
-        <div class="book-grid" style="grid-template-columns:1fr">
-          ${lista.map(e => {
-            const dias = diasRestantes(e.devolucao); // ← calculado UMA vez, reutilizado abaixo
-            let label;
-            if      (dias < 0)  label = `⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`;
-            else if (dias === 0) label = '⚠ Devolver HOJE';
-            else                 label = `Devolver até ${fmtDate(e.devolucao)}`;
+  async function carregarAlunos(q) {
+    const resultado = document.getElementById('resultado-alunos');
+    const contador  = document.getElementById('count-alunos');
+    if (!resultado) return;
+    const data = await post({ acao:'buscar_aluno', busca: q });
+    if (!data.success) return;
+    const emps = data.emprestimos;
+    if (contador) contador.textContent = `${emps.length} empréstimo${emps.length!==1?'s':''} ativo${emps.length!==1?'s':''}`;
+    resultado.innerHTML = emps.length === 0
+      ? '<p class="empty-state" style="padding:2rem;color:#333;font-style:italic;font-family:var(--font-mono);font-size:0.75rem">Nenhum empréstimo encontrado.</p>'
+      : `<div class="book-grid" style="grid-template-columns:1fr">
+          ${emps.map(e => {
+            const dias = diasRestantes(e.devolucao);
+            let cls='', info=`Devolver até ${fmtDate(e.devolucao)}`;
+            if (dias<0)       { cls='atrasado'; info=`⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`; }
+            else if (dias===0){ cls='hoje';     info='⚠ Devolver HOJE'; }
+            else if (dias<=3)   info=`Em ${dias} dia${dias!==1?'s':''} (${fmtDate(e.devolucao)})`;
             return `
-            <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
-              <div class="book-card-accent" style="background:${cor}"></div>
+              <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
+                <div class="book-card-accent"></div>
                 <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
                   <div>
                     <p class="book-title">${esc(e.aluno)}${e.sala?` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>`:''}</p>
                     <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)} · Retirada: ${fmtDate(e.retirada)}</p>
                   </div>
-                  <p style="font-family:var(--font-mono);font-size:0.65rem;color:${cor};white-space:nowrap">${label}</p>
+                  <p class="loan-devol ${cls}" style="font-family:var(--font-mono);font-size:0.65rem">${info}</p>
                 </div>
               </article>`;
           }).join('')}
+        </div>`;
+  }
+
+  // ── Aba: Histórico ─────────────────────────────────────────────────────
+  let historicoIniciado = false;
+
+  function iniciarHistorico() {
+    if (historicoIniciado) return;
+    historicoIniciado = true;
+
+    document.getElementById('tab-historico').innerHTML = `
+      <div class="search-header" style="margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem">
+        <span class="section-label">HISTÓRICO</span>
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input id="search-hist" type="text" placeholder="Aluno, livro ou sala…" autocomplete="off">
         </div>
+        <select id="filter-ano-hist" style="background:#111;border:1px solid #1e1e1e;color:#e0e0e0;font-family:var(--font-mono);font-size:0.8rem;padding:0.55rem 0.75rem;outline:none;border-radius:var(--radius)">
+          <option value="">Todos os anos</option>
+          ${[...Array(3)].map((_,i) => {
+            const a = new Date().getFullYear() - i;
+            return `<option value="${a}" ${i===0?'selected':''}>${a}</option>`;
+          }).join('')}
+        </select>
+        <span id="count-hist" style="font-family:var(--font-mono);font-size:0.6rem;color:#666"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:1.5rem;align-items:start">
+        <div id="resultado-hist"></div>
+        <div id="ranking-hist"></div>
+      </div>`;
+
+    document.getElementById('search-hist').addEventListener('input', function () {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => carregarHistorico(
+        this.value.trim(),
+        document.getElementById('filter-ano-hist').value
+      ), 300);
+    });
+    document.getElementById('filter-ano-hist').addEventListener('change', function () {
+      carregarHistorico(document.getElementById('search-hist').value.trim(), this.value);
+    });
+
+    carregarHistorico('', document.getElementById('filter-ano-hist').value);
+  }
+
+  async function carregarHistorico(q, ano) {
+    const resultado = document.getElementById('resultado-hist');
+    const ranking   = document.getElementById('ranking-hist');
+    const contador  = document.getElementById('count-hist');
+    if (!resultado) return;
+    const data = await post({ acao:'buscar_historico', busca: q, ano });
+    if (!data.success) return;
+    const regs = data.registros;
+    if (contador) contador.textContent = `${regs.length} empréstimo${regs.length!==1?'s':''}`;
+    resultado.innerHTML = regs.length === 0
+      ? '<p class="empty-state" style="padding:2rem;color:#333;font-style:italic;font-family:var(--font-mono);font-size:0.75rem">Nenhum registro encontrado.</p>'
+      : `<div class="book-grid" style="grid-template-columns:1fr">
+          ${regs.map(e => `
+            <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
+              <div class="book-card-accent"></div>
+              <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+                <div>
+                  <p class="book-title">${esc(e.aluno)}${e.sala?` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>`:''}</p>
+                  <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)}</p>
+                </div>
+                <div style="text-align:right">
+                  <p style="font-family:var(--font-mono);font-size:0.6rem;color:#666">Retirada: ${fmtDate(e.retirada)}</p>
+                  <p style="font-family:var(--font-mono);font-size:0.6rem;color:#555">Dev: ${fmtDate(e.devolucao)}</p>
+                </div>
+              </div>
+            </article>`).join('')}
+        </div>`;
+    ranking.innerHTML = data.ranking.length === 0 ? '' : `
+      <div style="background:#111;border:1px solid #1e1e1e;border-top:3px solid var(--rust);padding:1.5rem">
+        <p style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.25em;color:var(--rust);margin-bottom:1.25rem;text-transform:uppercase">— Top leitores</p>
+        ${data.ranking.map((r,i) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid #1a1a1a">
+            <div>
+              <span style="font-family:var(--font-mono);font-size:0.55rem;color:#555;margin-right:0.5rem">#${i+1}</span>
+              <span style="font-family:var(--font-display);font-size:0.85rem;color:#ddd">${esc(r.aluno)}</span>
+            </div>
+            <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--rust);font-weight:500">${r.total} livro${r.total!==1?'s':''}</span>
+          </div>`).join('')}
       </div>`;
   }
 
-  panel.innerHTML = total === 0
-    ? '<p style="font-family:var(--font-mono);font-size:0.75rem;color:#333;font-style:italic;padding:2rem">Tudo em dia! Nenhum alerta no momento.</p>'
-    : secao('Atrasados', '#cc2200', atrasados)
-    + secao('Vencem hoje', '#ff9800', hoje)
-    + secao('Vencem em até 3 dias', '#ccaa00', proximos);
-}
+  // ── Aba: Alertas ───────────────────────────────────────────────────────
+  async function carregarAlertas() {
+    const panel = document.getElementById('tab-alertas');
+    const data  = await post({ acao:'buscar_aluno', busca:'' });
+    if (!data.success) return;
 
-// Carrega badge de alertas ao abrir a página
-carregarAlertas();
-    document.getElementById('loan-devol').addEventListener('input', function () {
-    let v = this.value.replace(/\D/g,'');
-    if (v.length > 2) v = v.slice(0,2) + '/' + v.slice(2);
-    if (v.length > 5) v = v.slice(0,5) + '/' + v.slice(5);
-    this.value = v.slice(0,10);
-    });
+    const hoje      = data.emprestimos.filter(e => diasRestantes(e.devolucao) === 0);
+    const atrasados = data.emprestimos.filter(e => diasRestantes(e.devolucao) < 0);
+    const proximos  = data.emprestimos.filter(e => { const d=diasRestantes(e.devolucao); return d>0 && d<=3; });
 
+    const total = hoje.length + atrasados.length + proximos.length;
+    const badge = document.getElementById('badge-alertas');
+    if (total > 0) { badge.textContent = total; badge.style.display = 'inline'; }
+    else badge.style.display = 'none';
+
+    function secao(titulo, cor, lista) {
+      if (!lista.length) return '';
+      return `
+        <div style="margin-bottom:2rem">
+          <p style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.25em;color:${cor};margin-bottom:1rem;text-transform:uppercase">— ${titulo} (${lista.length})</p>
+          <div class="book-grid" style="grid-template-columns:1fr">
+            ${lista.map(e => {
+              const dias = diasRestantes(e.devolucao);
+              let label;
+              if      (dias < 0)  label = `⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`;
+              else if (dias === 0) label = '⚠ Devolver HOJE';
+              else                 label = `Devolver até ${fmtDate(e.devolucao)}`;
+              return `
+                <article class="book-card" onclick="window._abrirModal('${esc(e.registro)}')">
+                  <div class="book-card-accent" style="background:${cor}"></div>
+                  <div class="book-card-body" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+                    <div>
+                      <p class="book-title">${esc(e.aluno)}${e.sala?` <span style="font-size:0.7rem;font-family:var(--font-mono);color:#888">— ${esc(e.sala)}</span>`:''}</p>
+                      <p class="book-reg">${esc(e.livro)} · REG #${esc(e.registro)} · Retirada: ${fmtDate(e.retirada)}</p>
+                    </div>
+                    <p style="font-family:var(--font-mono);font-size:0.65rem;color:${cor};white-space:nowrap">${label}</p>
+                  </div>
+                </article>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }
+
+    panel.innerHTML = total === 0
+      ? '<p style="font-family:var(--font-mono);font-size:0.75rem;color:#333;font-style:italic;padding:2rem">Tudo em dia! Nenhum alerta no momento.</p>'
+      : secao('Atrasados', '#cc2200', atrasados)
+      + secao('Vencem hoje', '#ff9800', hoje)
+      + secao('Vencem em até 3 dias', '#ccaa00', proximos);
+  }
+
+  carregarAlertas();
+
+})();
     // ── Emprestar ─────────────────────────────────────────────────────────
     document.getElementById('btn-emprestar').addEventListener('click', async () => {
       const aluno    = document.getElementById('loan-aluno').value.trim();
