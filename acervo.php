@@ -26,23 +26,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!preg_match('/Nome:\s*(.+?)\s*\|\s*Registro:\s*([^\|]+?)\s*\|\s*Quantidade:\s*(\d+)/', $linha, $m)) continue;
             $nome     = trim($m[1]);
             $registro = trim($m[2]);
-<<<<<<< HEAD
             $quantidade   = (int)$m[3];
-=======
             $qtd      = (int)$m[3];
->>>>>>> dfbb8d59c89a4f038f62fff3b84a0ca63ea6838a
             $autor = '';      if (preg_match('/Autor:\s*(.+?)(?:\s*\||$)/',       $linha, $ma))   $autor       = trim($ma[1]);
             $editora = '';    if (preg_match('/Editora:\s*(.+?)(?:\s*\||$)/',     $linha, $me))   $editora     = trim($me[1]);
             $ano = '';        if (preg_match('/Ano:\s*(\d+)/',                    $linha, $mano)) $ano         = trim($mano[1]);
             $prateleira = ''; if (preg_match('/Prateleira:\s*(.+?)(?:\s*\||$)/', $linha, $mp))   $prateleira  = trim($mp[1]);
             $faixaEtaria = '';if (preg_match('/FaixaEtaria:\s*(.+?)(?:\s*\||$)/',$linha, $mf))   $faixaEtaria = trim($mf[1]);
-<<<<<<< HEAD
+
             $livros[] = compact('nome','registro','quantidade','autor','editora','ano','prateleira','faixaEtaria');
-=======
+
             $livros[] = compact('nome','registro','qtd','autor','editora','ano','prateleira','faixaEtaria');
             // normaliza chave
             $livros[array_key_last($livros)]['quantidade'] = $qtd;
->>>>>>> dfbb8d59c89a4f038f62fff3b84a0ca63ea6838a
         }
         return $livros;
     }
@@ -701,7 +697,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const label = l.disponiveis === 0
         ? '<span>0</span> disponíveis'
         : `<span>${l.disponiveis}</span> disponíve${l.disponiveis !== 1 ? 'is' : 'l'}`;
-<<<<<<< HEAD
 
       // badges de prateleira (suporta "A1, A2")
       const pratBadges = l.prateleira
@@ -714,18 +709,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ? `<span class="book-badge book-badge--faixa">${esc(l.faixaEtaria)}</span>`
         : '';
 
-=======
->>>>>>> dfbb8d59c89a4f038f62fff3b84a0ca63ea6838a
       return `
         <article class="book-card" onclick="window._abrirModal('${esc(l.registro)}')">
           <div class="book-card-accent"></div>
           <div class="book-card-body">
             <p class="book-title">${esc(l.nome)}</p>
             <p class="book-reg">REG #${esc(l.registro)}</p>
-<<<<<<< HEAD
             ${(pratBadges || faixaBadge) ? `<div class="book-badges">${pratBadges}${faixaBadge}</div>` : ''}
-=======
->>>>>>> dfbb8d59c89a4f038f62fff3b84a0ca63ea6838a
             <p class="book-qty ${cls}">${label}</p>
             <div class="book-avail-bar">
               <div class="book-avail-fill" style="width:${pct}%"></div>
@@ -795,11 +785,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       livro.prateleira  ? `Prateleira: ${livro.prateleira}` : '',
       livro.faixaEtaria ? `Nível: ${livro.faixaEtaria}` : '',
     ].filter(Boolean).join(' · ');
-<<<<<<< HEAD
     document.getElementById('modal-reg').textContent   = (extras ? `  ${extras}` : '');
-=======
     document.getElementById('modal-reg').textContent   = `REG #${livro.registro}` + (extras ? ` · ${extras}` : '');
->>>>>>> dfbb8d59c89a4f038f62fff3b84a0ca63ea6838a
     document.getElementById('modal-title').textContent = livro.nome;
     document.getElementById('stat-total').textContent  = livro.quantidade;
 

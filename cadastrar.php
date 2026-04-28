@@ -61,8 +61,6 @@ require __DIR__ . '/src/functions/cadastrar_livro.php';
   </div>
 </footer>
 
-<<<<<<< HEAD
-=======
 <script>
 (function () {
   'use strict';
@@ -276,6 +274,5 @@ require __DIR__ . '/src/functions/cadastrar_livro.php';
 
 })();
 </script>
->>>>>>> dfbb8d59c89a4f038f62fff3b84a0ca63ea6838a
 </body>
 </html>
