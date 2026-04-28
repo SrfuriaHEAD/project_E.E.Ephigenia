@@ -20,7 +20,5 @@ ID: E69dd7o5j567ioj.55667784 | Registro: 14 | Aluno: Natália Freitas | Sala: 1 
 ID: E69dd7p6k678jpk.66778895 | Registro: 15 | Aluno: Bruno Cardoso | Sala: 2 REG 1 | Retirada: 2026-04-04 | Devolucao: 2026-04-30
 ID: E69dd7q7l789kql.77889906 | Registro: 17 | Aluno: Amanda Teixeira | Sala: 3 REG 1 | Retirada: 2026-04-12 | Devolucao: 2026-05-12
 ID: E69dd7r8m890lrm.88990017 | Registro: 19 | Aluno: Felipe Gomes | Sala: 1 REG 2 | Retirada: 2026-04-08 | Devolucao: 2026-04-16
-ID: E69dd7s9n901msn.99001128 | Registro: 21 | Aluno: Carolina Dias | Sala: 2 REG 3 | Retirada: 2026-04-10 | Devolucao: 2026-05-01
-ID: E69dd7t0o012nto.00112239 | Registro: 21 | Aluno: Henrique Lopes | Sala: 3 REG 2 | Retirada: 2026-04-11 | Devolucao: 2026-04-14
 ID: E69dd7u1p123oup.11223341 | Registro: 22 | Aluno: Gabriela Moreira | Sala: 1 REG 1 | Retirada: 2026-04-13 | Devolucao: 2026-05-13
 ID: E69dd7v2q234pvq.22334452 | Registro: 22 | Aluno: Mateus Ribeiro | Sala: 2 REG 2 | Retirada: 2026-03-30 | Devolucao: 2026-04-09

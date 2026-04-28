@@ -19,7 +19,7 @@
   --bg-card      : #ffffff;
   --bg-header    : #1a4b8c;
   --surface      : #eef1f6;
-  --border       : #d0d8e8;
+  --border       : #939393;
   --border-dark  : #b8c4d8;
 
   /* Texto */
@@ -681,11 +681,11 @@ main.main {
 .field-group { display: flex; flex-direction: column; gap: 0.4rem; }
 
 .field-label {
-  font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.75rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--text-sub);
+  color: black;
 }
 
 .field-wrap { position: relative; }
@@ -693,11 +693,11 @@ main.main {
 .field-input {
   width: 100%;
   background: var(--bg);
-  border: 1px solid var(--border);
+  border: 1px solid #1c2333;
   border-radius: var(--radius);
-  color: var(--text-main);
+  color: var(--text-main) !important;
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 1rem;
   padding: 0.65rem 0.85rem;
   outline: none;
   transition: border-color var(--transition), box-shadow var(--transition);

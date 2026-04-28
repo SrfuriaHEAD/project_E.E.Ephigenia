@@ -1,0 +1,97 @@
+<?php
+@ini_set('zlib.output_compression', 'Off');
+if (function_exists('apache_setenv')) {
+    @apache_setenv('no-gzip', 1);
+}
+
+
+session_start();
+@ini_set('post_max_size', '10M');
+@ini_set('upload_max_filesize', '10M');
+@ini_set('max_execution_time', 300);
+@ini_set('default_socket_timeout', 300);
+
+define("GEMINI_KEY", "AIzaSyAdEbNjCWW-Q7OWNOQORbDzO3kbCc0ShiY");
+define("BOOKS_KEY",  "");
+
+$rawBody = file_get_contents("php://input");
+$body    = !empty($rawBody) ? json_decode($rawBody, true) : null;
+
+if (
+    isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+    is_array($body) &&
+    ($body['acao'] ?? '') === 'identificar_capa'
+) {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
+    header('Expires: 0');
+$imagem = $body['imagem'] ?? '';
+
+    if (!$imagem) {
+        echo json_encode(['status' => 'erro', 'msg' => 'Imagem ausente.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if (strpos($imagem, ',') !== false) {
+        $imagem = explode(',', $imagem, 2)[1];
+    }
+    $imagem = preg_replace('/\s+/', '', $imagem);
+
+    if (!base64_decode($imagem, true)) {
+        echo json_encode(['status' => 'erro', 'msg' => 'Base64 inválido.'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $prompt =
+        'This image shows the cover of a book. ' .
+        'Identify the book and respond ONLY with pure JSON, no markdown, no extra text, ' .
+        'exactly in this format: ' .
+        '{"titulo":"...","autores":["..."],"editora":"...","ano":"..."} ' .
+        'Use the original language for titulo. ' .
+        'If you cannot identify the book, respond only: {"identificado":false}';
+
+    [$texto, $erro] = chamarGemini($imagem, $prompt);
+
+    if ($texto === null) {
+        echo json_encode(['status' => 'erro_gemini', 'msg' => $erro], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $jsonLimpo = extraiJson($texto);
+    $info      = json_decode($jsonLimpo, true);
+
+    if (!$info || (isset($info['identificado']) && $info['identificado'] === false)) {
+        echo json_encode(['status' => 'nao_identificado'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $titulo = trim($info['titulo'] ?? '');
+    if (mb_strlen($titulo) < 2) {
+        echo json_encode(['status' => 'sem_titulo'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $autor = trim(($info['autores'] ?? [])[0] ?? '');
+    $livro = null;
+
+    if ($autor) $livro = buscarBooks("intitle:$titulo inauthor:$autor");
+    if (!$livro) $livro = buscarBooks("intitle:$titulo");
+    if (!$livro) $livro = buscarBooks($titulo . ($autor ? " $autor" : ''));
+
+    if (!$livro) {
+        $livro = [
+            'titulo'  => $titulo,
+            'autores' => $info['autores'] ?? [],
+            'editora' => $info['editora'] ?? '',
+            'ano'     => $info['ano']     ?? '',
+        ];
+    }
+
+    echo json_encode(['status' => 'encontrado', 'livro' => $livro], JSON_UNESCAPED_UNICODE);
+
+    exit;
+
+} else {
+    ob_start();
+    require __DIR__ . '/src/functions/cadastrar_livro.php';
+}
