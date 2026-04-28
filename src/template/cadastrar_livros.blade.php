@@ -126,12 +126,24 @@
         </div>
       </div>
 
+<<<<<<< HEAD
       <div class="field-group" style="flex:1;min-width:130px">
         <label class="field-label" for="f-quantidade">Qtd. de exemplares</label>
         <div class="field-wrap">
           <input class="field-input" type="number" id="f-quantidade" name="quantidade"
                  placeholder="ex: 3" required min="1">
           <span class="field-bar"></span>
+=======
+      
+
+        <div class="field-group" style="flex:1;min-width:130px">
+          <label class="field-label" for="f-quantidade">Qtd. de exemplares</label>
+          <div class="field-wrap">
+            <input class="field-input" type="number" id="f-quantidade" name="quantidade"
+                   placeholder="ex: 3" required min="1">
+            <span class="field-bar"></span>
+          </div>
+>>>>>>> dfbb8d59c89a4f038f62fff3b84a0ca63ea6838a
         </div>
       </div>
 
