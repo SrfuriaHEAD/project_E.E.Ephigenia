@@ -678,7 +678,7 @@ main.main {
 
 .form { padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
 
-.field-group { display: flex; flex-direction: column; gap: 0.4rem; }
+.field-group { display: flex; flex-direction: column; gap: 0.4rem; ;}
 
 .field-label {
   font-family: Arial, Helvetica, sans-serif;

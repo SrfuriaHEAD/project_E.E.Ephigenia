@@ -126,16 +126,7 @@
         </div>
       </div>
 
-<<<<<<< HEAD
-      <div class="field-group" style="flex:1;min-width:130px">
-        <label class="field-label" for="f-quantidade">Qtd. de exemplares</label>
-        <div class="field-wrap">
-          <input class="field-input" type="number" id="f-quantidade" name="quantidade"
-                 placeholder="ex: 3" required min="1">
-          <span class="field-bar"></span>
-=======
-      
-
+      <div style="display:flex;gap:1rem;flex-wrap:wrap">
         <div class="field-group" style="flex:1;min-width:130px">
           <label class="field-label" for="f-quantidade">Qtd. de exemplares</label>
           <div class="field-wrap">
@@ -143,40 +134,60 @@
                    placeholder="ex: 3" required min="1">
             <span class="field-bar"></span>
           </div>
->>>>>>> dfbb8d59c89a4f038f62fff3b84a0ca63ea6838a
         </div>
-      </div>
 
-      <div style="display:flex;gap:1rem;flex-wrap:wrap">
         <div class="field-group" style="flex:2;min-width:160px">
           <label class="field-label" for="f-prateleira">Prateleira</label>
           <div class="field-wrap">
-            <input class="field-input" type="text" id="f-prateleira" name="prateleira"
-                   placeholder="ex: A3, C4" autocomplete="off">
+            <select class="field-input" id="f-prateleira" name="prateleira"
+                    style="appearance:none;-webkit-appearance:none;cursor:pointer">
+              <option value="">— Selecionar —</option>
+              <optgroup label="Prateleira 1">
+                <option value="1A">1A</option>
+                <option value="1B">1B</option>
+                <option value="1C">1C</option>
+                <option value="1D">1D</option>
+                <option value="1E">1E</option>
+              </optgroup>
+              <optgroup label="Prateleira 2">
+                <option value="2A">2A</option>
+                <option value="2B">2B</option>
+                <option value="2C">2C</option>
+                <option value="2D">2D</option>
+                <option value="2E">2E</option>
+              </optgroup>
+              <optgroup label="Prateleira 3">
+                <option value="3A">3A</option>
+                <option value="3B">3B</option>
+                <option value="3C">3C</option>
+                <option value="3D">3D</option>
+                <option value="3E">3E</option>
+              </optgroup>
+              <optgroup label="Prateleira 4">
+                <option value="4A">4A</option>
+                <option value="4B">4B</option>
+                <option value="4C">4C</option>
+                <option value="4D">4D</option>
+                <option value="4E">4E</option>
+              </optgroup>
+            </select>
             <span class="field-bar"></span>
           </div>
         </div>
 
-        <div class="field-group" style="flex:2;min-width:160px">
-          <label class="field-label" for="f-faixa-etaria">Faixa etária / Nível</label>
+        <div class="field-group" style="flex:2;min-width:200px">
+          <label class="field-label" for="f-faixa-etaria">Classificação / Gênero</label>
           <div class="field-wrap">
             <select class="field-input" id="f-faixa-etaria" name="faixa_etaria"
                     style="appearance:none;-webkit-appearance:none;cursor:pointer">
               <option value="">— Selecionar —</option>
-              <option value="1A">1º Ano</option>
-              <option value="2A">2º Ano</option>
-              <option value="3A">3º Ano</option>
-              <option value="4A">4º Ano</option>
-              <option value="5A">5º Ano</option>
-              <option value="6A">6º Ano</option>
-              <option value="7A">7º Ano</option>
-              <option value="8A">8º Ano</option>
-              <option value="9A">9º Ano</option>
-              <option value="EM1">EM — 1ª série</option>
-              <option value="EM2">EM — 2ª série</option>
-              <option value="EM3">EM — 3ª série</option>
-              <option value="LIT">Literatura</option>
-              <option value="INF">Infantil</option>
+              <option value="1A">1A — Infanto Juvenil</option>
+              <option value="2A">2A — Conto</option>
+              <option value="3A">3A — Ficção Científica</option>
+              <option value="4A">4A — Romance</option>
+              <option value="5A">5A — Literatura Brasileira</option>
+              <option value="6A">6A — Poesia</option>
+              <option value="guerra">Guerra</option>
               <option value="TODOS">Todas as idades</option>
             </select>
             <span class="field-bar"></span>

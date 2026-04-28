@@ -35,10 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $faixaEtaria = '';if (preg_match('/FaixaEtaria:\s*(.+?)(?:\s*\||$)/',$linha, $mf))   $faixaEtaria = trim($mf[1]);
 
             $livros[] = compact('nome','registro','quantidade','autor','editora','ano','prateleira','faixaEtaria');
-
-            $livros[] = compact('nome','registro','qtd','autor','editora','ano','prateleira','faixaEtaria');
-            // normaliza chave
-            $livros[array_key_last($livros)]['quantidade'] = $qtd;
         }
         return $livros;
     }
@@ -218,23 +214,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $busca = strtolower(trim($_POST['busca'] ?? ''));
         $ano   = trim($_POST['ano'] ?? '');
 
-        // Histórico vem de arquivo separado se existir, senão usa emprestimos.txt
         $arqHist = $diretorio . '/historico.txt';
-        $fonte   = file_exists($arqHist) ? $arqHist : $arqEmprestimos;
-
-        $livros = parse_livros($arquivo);
-        $idx    = [];
+        $livros  = parse_livros($arquivo);
+        $idx     = [];
         foreach ($livros as $l) $idx[$l['registro']] = $l['nome'];
 
         $todos = [];
-        if (file_exists($fonte)) {
-            foreach (file($fonte, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $linha) {
+
+        // ── Tenta ler historico.txt (formato completo com Livro: e Ano:) ──────
+        if (file_exists($arqHist)) {
+            foreach (file($arqHist, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $linha) {
                 if (str_starts_with($linha, '---')) continue;
-                if (preg_match('/ID:\s*(\S+)\s*\|\s*Registro:\s*(\S+)\s*\|\s*Aluno:\s*(.+?)\s*\|\s*Sala:\s*(.*?)\s*\|\s*Retirada:\s*(\S+)\s*\|\s*Devolucao:\s*(\S+)/', $linha, $m)) {
-                    if ($ano && !str_starts_with($m[5], $ano)) continue;
-                    if ($busca && !str_contains(strtolower($m[3]), $busca) && !str_contains(strtolower($m[4]), $busca) && !str_contains(strtolower($idx[$m[2]] ?? ''), $busca)) continue;
-                    $todos[] = ['id'=>$m[1],'registro'=>$m[2],'aluno'=>$m[3],'sala'=>$m[4],'retirada'=>$m[5],'devolucao'=>$m[6],'livro'=>$idx[$m[2]] ?? 'Desconhecido'];
-                }
+                // Formato: ID: ... | Registro: ... | Livro: ... | Aluno: ... | Sala: ... | Retirada: ... | Devolucao: ... | Ano: ...
+                if (!preg_match('/ID:\s*(\S+)\s*\|\s*Registro:\s*(\S+)\s*\|\s*Livro:\s*(.+?)\s*\|\s*Aluno:\s*(.+?)\s*\|\s*Sala:\s*(.*?)\s*\|\s*Retirada:\s*(\S+)\s*\|\s*Devolucao:\s*(\S+)(?:\s*\|\s*Ano:\s*(\d+))?/', $linha, $m)) continue;
+                $anoReg = $m[8] ?? substr($m[6], 0, 4); // usa campo Ano: ou extrai do Retirada
+                if ($ano && $anoReg !== $ano) continue;
+                $nomeLivro = trim($m[3]);
+                if ($busca
+                    && !str_contains(strtolower($m[4]), $busca)
+                    && !str_contains(strtolower($m[5]), $busca)
+                    && !str_contains(strtolower($nomeLivro),  $busca)) continue;
+                $todos[] = [
+                    'id'        => $m[1],
+                    'registro'  => $m[2],
+                    'livro'     => $nomeLivro,
+                    'aluno'     => trim($m[4]),
+                    'sala'      => trim($m[5]),
+                    'retirada'  => $m[6],
+                    'devolucao' => $m[7],
+                    'ano'       => $anoReg,
+                ];
+            }
+        }
+
+        // ── Fallback: emprestimos.txt ativos (se histórico vazio) ─────────────
+        if (empty($todos)) {
+            foreach (file($arqEmprestimos, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $linha) {
+                if (str_starts_with($linha, '---')) continue;
+                if (!preg_match('/ID:\s*(\S+)\s*\|\s*Registro:\s*(\S+)\s*\|\s*Aluno:\s*(.+?)\s*\|\s*Sala:\s*(.*?)\s*\|\s*Retirada:\s*(\S+)\s*\|\s*Devolucao:\s*(\S+)/', $linha, $m)) continue;
+                $anoReg = substr($m[5], 0, 4);
+                if ($ano && $anoReg !== $ano) continue;
+                $nomeLivro = $idx[$m[2]] ?? 'Desconhecido';
+                if ($busca
+                    && !str_contains(strtolower($m[3]), $busca)
+                    && !str_contains(strtolower($m[4]), $busca)
+                    && !str_contains(strtolower($nomeLivro),  $busca)) continue;
+                $todos[] = ['id'=>$m[1],'registro'=>$m[2],'livro'=>$nomeLivro,'aluno'=>$m[3],'sala'=>$m[4],'retirada'=>$m[5],'devolucao'=>$m[6],'ano'=>$anoReg];
             }
         }
 
@@ -247,7 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ranking[] = ['aluno' => $aluno, 'total' => $total];
         }
 
-        json_out(['success' => true, 'registros' => $todos, 'ranking' => $ranking]);
+        json_out(['success' => true, 'registros' => array_reverse($todos), 'ranking' => $ranking]);
     }
 
     // Ação desconhecida
@@ -338,6 +363,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     .book-badge--prat  { background: #1a1a1a; color: #888; border: 1px solid #2a2a2a; }
     .book-badge--faixa { background: #1c1008; color: #c87941; border: 1px solid #3a2010; }
+
+    /* ── Novo badge de gênero: código em destaque + nome ── */
+    .book-genre-badge {
+      display: inline-flex; align-items: center; gap: 0;
+      margin: 0.45rem 0 0.35rem;
+      border: 1px solid #3a2010; border-radius: 2px; overflow: hidden;
+    }
+    .genre-code {
+      background: #c87941; color: #0f0f0f;
+      font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.1em; padding: 0.2rem 0.5rem;
+      line-height: 1;
+    }
+    .genre-name {
+      background: #1c1008; color: #c87941;
+      font-family: var(--font-mono); font-size: 0.62rem;
+      letter-spacing: 0.06em; padding: 0.2rem 0.55rem;
+      line-height: 1;
+    }
     .empty-state {
       grid-column: 1 / -1; font-family: var(--font-mono); font-size: 0.75rem;
       color: #333; font-style: italic; padding: 2rem; background: #0f0f0f;
@@ -585,6 +629,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div>
         <p class="modal-reg" id="modal-reg">—</p>
         <h2 class="modal-title" id="modal-title">—</h2>
+        <p id="modal-prateleira" style="font-family:var(--font-mono);font-size:0.7rem;color:#c87941;margin-top:0.35rem;letter-spacing:0.05em;min-height:1rem;"></p>
       </div>
       <button class="modal-close" id="modal-close" type="button">✕ Fechar</button>
     </div>
@@ -672,8 +717,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     return `${y}-${m}-${d}`;
   }
   function diasRestantes(iso) {
-    const hoje = new Date(); hoje.setHours(0,0,0,0);
-    return Math.round((new Date(iso + 'T00:00:00') - hoje) / 86400000);
+    // Parse manual: evita ambiguidade UTC vs local do navegador
+    const [y, m, d] = iso.split('-').map(Number);
+    const dev  = new Date(y, m - 1, d);           // meia-noite LOCAL
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);                     // meia-noite LOCAL de hoje
+    return Math.round((dev - hoje) / 86400000);
   }
   function post(dados) {
     const fd = new FormData();
@@ -698,15 +747,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ? '<span>0</span> disponíveis'
         : `<span>${l.disponiveis}</span> disponíve${l.disponiveis !== 1 ? 'is' : 'l'}`;
 
-      // badges de prateleira (suporta "A1, A2")
-      const pratBadges = l.prateleira
-        ? l.prateleira.split(/[,;\/]/).map(p => p.trim()).filter(Boolean)
-            .map(p => `<span class="book-badge book-badge--prat">${esc(p)}</span>`).join('')
-        : '';
-
-      // badge de faixa etária
-      const faixaBadge = l.faixaEtaria
-        ? `<span class="book-badge book-badge--faixa">${esc(l.faixaEtaria)}</span>`
+      // mapa de gêneros — usado no card e no modal
+      const GENERO = {
+        '1A': ['1A', 'Infanto Juvenil'],
+        '2A': ['2A', 'Conto'],
+        '3A': ['3A', 'Ficção Científica'],
+        '4A': ['4A', 'Romance'],
+        '5A': ['5A', 'Literatura Brasileira'],
+        '6A': ['6A', 'Poesia'],
+        'guerra': ['', 'Guerra'],
+        'TODOS':  ['', 'Todas as idades'],
+        'Infantil': ['', 'Infantil'],
+        'Jovem':    ['', 'Jovem'],
+        'Adulto':   ['', 'Adulto'],
+      };
+      const genInfo = l.faixaEtaria ? (GENERO[l.faixaEtaria] || ['', l.faixaEtaria]) : null;
+      // No card: mostra código (ex: 1A) + nome do gênero — SEM prateleira
+      const faixaBadge = genInfo
+        ? `<div class="book-genre-badge">
+             ${genInfo[0] ? `<span class="genre-code">${esc(genInfo[0])}</span>` : ''}
+             <span class="genre-name">${esc(genInfo[1])}</span>
+           </div>`
         : '';
 
       return `
@@ -715,7 +776,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <div class="book-card-body">
             <p class="book-title">${esc(l.nome)}</p>
             <p class="book-reg">REG #${esc(l.registro)}</p>
-            ${(pratBadges || faixaBadge) ? `<div class="book-badges">${pratBadges}${faixaBadge}</div>` : ''}
+            ${faixaBadge}
             <p class="book-qty ${cls}">${label}</p>
             <div class="book-avail-bar">
               <div class="book-avail-fill" style="width:${pct}%"></div>
@@ -780,13 +841,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   });
 
   function renderLoans(livro) {
+    const GENERO = {
+      '1A': ['1A', 'Infanto Juvenil'],   '2A': ['2A', 'Conto'],
+      '3A': ['3A', 'Ficção Científica'], '4A': ['4A', 'Romance'],
+      '5A': ['5A', 'Literatura Brasileira'], '6A': ['6A', 'Poesia'],
+      'guerra': ['', 'Guerra'], 'TODOS': ['', 'Todas as idades'],
+      'Infantil': ['', 'Infantil'], 'Jovem': ['', 'Jovem'], 'Adulto': ['', 'Adulto'],
+    };
+    const genInfo = livro.faixaEtaria ? (GENERO[livro.faixaEtaria] || ['', livro.faixaEtaria]) : null;
+    const genLabel = genInfo ? (genInfo[0] ? `${genInfo[0]} — ${genInfo[1]}` : genInfo[1]) : '';
     const extras = [
-      livro.autor       ? `Autor: ${livro.autor}`       : '',
-      livro.prateleira  ? `Prateleira: ${livro.prateleira}` : '',
-      livro.faixaEtaria ? `Nível: ${livro.faixaEtaria}` : '',
+      livro.autor      ? `Autor: ${livro.autor}` : '',
+      genLabel         ? `Gênero: ${genLabel}` : '',
     ].filter(Boolean).join(' · ');
-    document.getElementById('modal-reg').textContent   = (extras ? `  ${extras}` : '');
-    document.getElementById('modal-reg').textContent   = `REG #${livro.registro}` + (extras ? ` · ${extras}` : '');
+    // Prateleira aparece em destaque separado
+    document.getElementById('modal-reg').textContent = `REG #${livro.registro}` + (extras ? ` · ${extras}` : '');
+    // Mostra prateleira logo abaixo do título se existir
+    const pratEl = document.getElementById('modal-prateleira');
+    if (pratEl) pratEl.textContent = livro.prateleira ? `📚 Prateleira: ${livro.prateleira}` : '';
     document.getElementById('modal-title').textContent = livro.nome;
     document.getElementById('stat-total').textContent  = livro.quantidade;
 

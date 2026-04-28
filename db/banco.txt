@@ -1,20 +1,20 @@
 ---BANCO DE DADOS---
-Nome: A arte da guerra | Registro: 1 | Quantidade: 1 | Autor: Sun Tzu | Prateleira: A1 | FaixaEtaria: Adulto
-Nome: João e o pé de feijão | Registro: 2 | Quantidade: 5 | Autor: Joseph Jacobs | Prateleira: C1 | FaixaEtaria: Infantil
-Nome: 1984 | Registro: 3 | Quantidade: 2 | Autor: George Orwell | Prateleira: A2 | FaixaEtaria: Adulto
-Nome: O Senhor dos Anéis | Registro: 4 | Quantidade: 3 | Autor: J.R.R. Tolkien | Prateleira: B1 | FaixaEtaria: Jovem
-Nome: Harry Potter e a Pedra Filosofal | Registro: 5 | Quantidade: 4 | Autor: J.K. Rowling | Prateleira: C2 | FaixaEtaria: Infantil
-Nome: Dom Quixote | Registro: 6 | Quantidade: 2 | Autor: Miguel de Cervantes | Prateleira: A3 | FaixaEtaria: Adulto
-Nome: O Pequeno Príncipe | Registro: 7 | Quantidade: 6 | Autor: Antoine de Saint-Exupéry | Prateleira: C1 | FaixaEtaria: Infantil
-Nome: Sapiens: Uma Breve História da Humanidade | Registro: 8 | Quantidade: 2 | Autor: Yuval Noah Harari | Prateleira: A4 | FaixaEtaria: Adulto
-Nome: O Alquimista | Registro: 9 | Quantidade: 3 | Autor: Paulo Coelho | Prateleira: B2 | FaixaEtaria: Jovem
-Nome: Admirável Mundo Novo | Registro: 10 | Quantidade: 2 | Autor: Aldous Huxley | Prateleira: A2 | FaixaEtaria: Adulto
-Nome: Crime e Castigo | Registro: 11 | Quantidade: 1 | Autor: Fiódor Dostoiévski | Prateleira: A5 | FaixaEtaria: Adulto
-Nome: O Hobbit | Registro: 12 | Quantidade: 3 | Autor: J.R.R. Tolkien | Prateleira: B1 | FaixaEtaria: Jovem
-Nome: Vidas Secas | Registro: 13 | Quantidade: 4 | Autor: Graciliano Ramos | Prateleira: B3 | FaixaEtaria: Jovem
-Nome: O Cortiço | Registro: 14 | Quantidade: 2 | Autor: Aluísio Azevedo | Prateleira: B4 | FaixaEtaria: Jovem
-Nome: Iracema | Registro: 15 | Quantidade: 3 | Autor: José de Alencar | Prateleira: B5 | FaixaEtaria: Jovem
-Nome: A Moreninha | Registro: 16 | Quantidade: 2 | Autor: Joaquim Manuel de Macedo | Prateleira: B5 | FaixaEtaria: Jovem
-Nome: Grande Sertão: Veredas | Registro: 17 | Quantidade: 1 | Autor: João Guimarães Rosa | Prateleira: B3 | FaixaEtaria: Adulto
-Nome: A Metamorfose | Registro: 19 | Quantidade: 2 | Autor: Franz Kafka | Prateleira: A5 | FaixaEtaria: Adulto
-Nome: O Diário de Anne Frank | Registro: 22 | Quantidade: 3 | Autor: Anne Frank | Prateleira: B6 | FaixaEtaria: Jovem
+Nome: A arte da guerra | Registro: 1 | Quantidade: 1 | Autor: Sun Tzu | Prateleira: 1A | FaixaEtaria: guerra
+Nome: João e o pé de feijão | Registro: 2 | Quantidade: 5 | Autor: Joseph Jacobs | Prateleira: 1B | FaixaEtaria: 1A
+Nome: 1984 | Registro: 3 | Quantidade: 2 | Autor: George Orwell | Prateleira: 2A | FaixaEtaria: 3A
+Nome: O Senhor dos Anéis | Registro: 4 | Quantidade: 3 | Autor: J.R.R. Tolkien | Prateleira: 2B | FaixaEtaria: 3A
+Nome: Harry Potter e a Pedra Filosofal | Registro: 5 | Quantidade: 4 | Autor: J.K. Rowling | Prateleira: 1C | FaixaEtaria: 1A
+Nome: Dom Quixote | Registro: 6 | Quantidade: 2 | Autor: Miguel de Cervantes | Prateleira: 3A | FaixaEtaria: 4A
+Nome: O Pequeno Príncipe | Registro: 7 | Quantidade: 6 | Autor: Antoine de Saint-Exupéry | Prateleira: 1B | FaixaEtaria: 1A
+Nome: Sapiens: Uma Breve História da Humanidade | Registro: 8 | Quantidade: 2 | Autor: Yuval Noah Harari | Prateleira: 3B | FaixaEtaria: TODOS
+Nome: O Alquimista | Registro: 9 | Quantidade: 3 | Autor: Paulo Coelho | Prateleira: 3C | FaixaEtaria: 4A
+Nome: Admirável Mundo Novo | Registro: 10 | Quantidade: 2 | Autor: Aldous Huxley | Prateleira: 2C | FaixaEtaria: 3A
+Nome: Crime e Castigo | Registro: 11 | Quantidade: 1 | Autor: Fiódor Dostoiévski | Prateleira: 3D | FaixaEtaria: 4A
+Nome: O Hobbit | Registro: 12 | Quantidade: 3 | Autor: J.R.R. Tolkien | Prateleira: 2D | FaixaEtaria: 1A
+Nome: Vidas Secas | Registro: 13 | Quantidade: 4 | Autor: Graciliano Ramos | Prateleira: 4A | FaixaEtaria: 5A
+Nome: O Cortiço | Registro: 14 | Quantidade: 2 | Autor: Aluísio Azevedo | Prateleira: 4B | FaixaEtaria: 5A
+Nome: Iracema | Registro: 15 | Quantidade: 3 | Autor: José de Alencar | Prateleira: 4C | FaixaEtaria: 5A
+Nome: A Moreninha | Registro: 16 | Quantidade: 2 | Autor: Joaquim Manuel de Macedo | Prateleira: 4D | FaixaEtaria: 5A
+Nome: Grande Sertão: Veredas | Registro: 17 | Quantidade: 1 | Autor: João Guimarães Rosa | Prateleira: 4E | FaixaEtaria: 5A
+Nome: A Metamorfose | Registro: 19 | Quantidade: 2 | Autor: Franz Kafka | Prateleira: 2E | FaixaEtaria: 2A
+Nome: O Diário de Anne Frank | Registro: 22 | Quantidade: 3 | Autor: Anne Frank | Prateleira: 1D | FaixaEtaria: guerra
