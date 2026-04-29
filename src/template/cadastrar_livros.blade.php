@@ -1,7 +1,8 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      SEÇÃO: Câmera para captura de capa (sem IA por enquanto)
 ════════════════════════════════════════════════════════════════════ -->
-
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <section class="scan-section">
 
   <div class="scan-card" id="scanCard">
@@ -142,33 +143,40 @@
             <select class="field-input" id="f-prateleira" name="prateleira"
                     style="appearance:none;-webkit-appearance:none;cursor:pointer">
               <option value="">— Selecionar —</option>
-              <optgroup label="Prateleira 1">
-                <option value="1A">1A</option>
-                <option value="1B">1B</option>
-                <option value="1C">1C</option>
-                <option value="1D">1D</option>
-                <option value="1E">1E</option>
+              <optgroup label="Prateleira A">
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="A3">A3</option>
+                <option value="A4">A4</option>
+                <option value="A5">A5</option>
               </optgroup>
-              <optgroup label="Prateleira 2">
-                <option value="2A">2A</option>
-                <option value="2B">2B</option>
-                <option value="2C">2C</option>
-                <option value="2D">2D</option>
-                <option value="2E">2E</option>
+              <optgroup label="Prateleira B">
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+                <option value="B3">B3</option>
+                <option value="B4">B4</option>
+                <option value="B5">B5</option>
               </optgroup>
-              <optgroup label="Prateleira 3">
-                <option value="3A">3A</option>
-                <option value="3B">3B</option>
-                <option value="3C">3C</option>
-                <option value="3D">3D</option>
-                <option value="3E">3E</option>
+              <optgroup label="Prateleira C">
+                <option value="C1">C1</option>
+                <option value="C2">C2</option>
+                <option value="C3">C3</option>
+                <option value="C4">C4</option>
+                <option value="C5">C5</option>
               </optgroup>
-              <optgroup label="Prateleira 4">
-                <option value="4A">4A</option>
-                <option value="4B">4B</option>
-                <option value="4C">4C</option>
-                <option value="4D">4D</option>
-                <option value="4E">4E</option>
+              <optgroup label="Prateleira D">
+                <option value="D1">D1</option>
+                <option value="D2">D2</option>
+                <option value="D3">D3</option>
+                <option value="D4">D4</option>
+                <option value="D5">D5</option>
+              </optgroup>
+              <optgroup label="Prateleira E">
+                <option value="E1">E1</option>
+                <option value="E2">E2</option>
+                <option value="E3">E3</option>
+                <option value="E4">E4</option>
+                <option value="E5">E5</option>
               </optgroup>
             </select>
             <span class="field-bar"></span>
@@ -178,8 +186,7 @@
         <div class="field-group" style="flex:2;min-width:200px">
           <label class="field-label" for="f-faixa-etaria">Classificação / Gênero</label>
           <div class="field-wrap">
-            <select class="field-input" id="f-faixa-etaria" name="faixa_etaria"
-                    style="appearance:none;-webkit-appearance:none;cursor:pointer">
+            <select class="field-input" id="f-faixa-etaria" name="faixa_etaria">
               <option value="">— Selecionar —</option>
               <option value="1A">1A — Infanto Juvenil</option>
               <option value="2A">2A — Conto</option>
@@ -477,6 +484,79 @@
 .btn-sm { padding: 0.4rem 0.85rem; font-size: 0.72rem; }
 
 /* ── Result ───────────────────────────────────────────────────────── */
+/* ── Tom Select fix ───────────────────────────────────────────────── */
+.ts-wrapper {
+  width: 100%;
+}
+
+.ts-control {
+  border: none !important;
+  border-bottom: 1.5px solid var(--border, #ccc) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0.55rem 0 !important;
+  font-size: inherit !important;
+  font-family: inherit !important;
+  min-height: unset !important;
+}
+
+.ts-control input {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  color: inherit !important;
+}
+
+.ts-dropdown {
+  border-radius: 2px !important;
+  border: 1.5px solid #111 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  font-family: inherit !important;
+  font-size: 0.85rem !important;
+  z-index: 9999 !important;
+}
+
+.ts-dropdown .option {
+  padding: 0.5rem 1rem !important;
+}
+
+.ts-dropdown .option:hover,
+.ts-dropdown .option.active {
+  background: #111 !important;
+  color: #fff !important;
+}
+
+/* ── Tom Select dropdown fix ─────────────────────────────────────── */
+.field-wrap {
+  overflow: visible !important;
+  position: relative;
+}
+
+.form-card {
+  overflow: visible !important;
+}
+
+/* garante que o dropdown flutue sobre tudo */
+.ts-dropdown {
+  position: absolute !important;
+  z-index: 9999 !important;
+  width: 100% !important;
+  left: 0 !important;
+}
+
+.ts-dropdown .optgroup-header {
+  font-family: var(--font-mono, monospace) !important;
+  font-size: 0.65rem !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: #888 !important;
+  padding: 0.5rem 1rem 0.25rem !important;
+  background: #fafafa !important;
+}
+
+/* esconde o select original */
+.ts-wrapper + select { display: none; }
+
 .scan-result {
   margin-top: 1.5rem;
   border: 1.5px solid #111;
@@ -597,6 +677,31 @@
   function show(el) { el.style.display = ''; }
   function hide(el) { el.style.display = 'none'; }
 
+  new TomSelect('#f-faixa-etaria', {
+    create: true,           // permite digitar valor novo
+    sortField: false,
+    placeholder: '— Selecionar ou digitar —',
+    render: {
+    option_create: (data, escape) =>
+      `<div class="create">Adicionar <strong>${escape(data.input)}</strong>…</div>`,
+    no_results: () =>
+      `<div class="no-results">Nenhum resultado encontrado.</div>`
+  }
+
+  });
+
+  new TomSelect('#f-prateleira', {
+    create: true,           // permite digitar valor novo
+    sortField: false,
+    placeholder: '— Selecionar ou digitar —',
+    render: {
+    option_create: (data, escape) =>
+      `<div class="create">Adicionar <strong>${escape(data.input)}</strong>…</div>`,
+    no_results: () =>
+      `<div class="no-results">Nenhum resultado encontrado.</div>`
+  }
+  });
+  
   function setView(view) {
     hide(cameraIdle); hide(cameraLive); hide(cameraPreview);
     if (view) show(view);

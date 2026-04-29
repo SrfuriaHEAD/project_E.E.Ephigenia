@@ -1,9 +1,7 @@
 ---EMPRESTIMOS---
-ID: 202604283920 | Registro: 1 | Aluno: Arthur Abner | Sala: 2 REG 3 | Retirada: 2026-04-28 | Devolucao: 2026-04-29
+ID: 202604283920 | Registro: 1 | Aluno: Arthur Abner | Sala: 2 REG 3 | Retirada: 2026-04-28 | Devolucao: 2026-05-04
 ID: E69dd6f40543e07.66378068 | Registro: 7 | Aluno: Rodrigo Da Silva | Sala: 3 REG 1 | Retirada: 2026-04-14 | Devolucao: 2026-05-24
-ID: E69dd6f6a6525a2.99780500 | Registro: 7 | Aluno: Ricardo Mendonça | Sala: 1 REG 2 | Retirada: 2026-04-14 | Devolucao: 2026-05-14
-ID: E69dd7b2c2345bc.22334455 | Registro: 3 | Aluno: Gustavo Henrique | Sala: 3 REG 2 | Retirada: 2026-03-25 | Devolucao: 2026-04-12
-ID: E69dd7c3d3456cd.33445566 | Registro: 3 | Aluno: Mariana Costa | Sala: 1 REG 1 | Retirada: 2026-04-01 | Devolucao: 2026-04-13
+ID: E69dd7b2c2345bc.22334455 | Registro: 3 | Aluno: Gustavo Henrique | Sala: 3 REG 2 | Retirada: 2026-03-25 | Devolucao: 2026-05-09
 ID: E69dd7d4e4567de.44556677 | Registro: 4 | Aluno: Lucas Ferreira | Sala: 2 REG 2 | Retirada: 2026-04-05 | Devolucao: 2026-04-15
 ID: E69dd7e5f5678ef.55667788 | Registro: 4 | Aluno: Beatriz Santos | Sala: 3 REG 3 | Retirada: 2026-04-06 | Devolucao: 2026-04-16
 ID: E69dd7f6a6789fa.66778899 | Registro: 5 | Aluno: Pedro Alves | Sala: 1 REG 3 | Retirada: 2026-04-07 | Devolucao: 2026-05-07
@@ -21,3 +19,4 @@ ID: E69dd7q7l789kql.77889906 | Registro: 17 | Aluno: Amanda Teixeira | Sala: 3 R
 ID: E69dd7r8m890lrm.88990017 | Registro: 19 | Aluno: Felipe Gomes | Sala: 1 REG 2 | Retirada: 2026-04-08 | Devolucao: 2026-04-16
 ID: E69dd7u1p123oup.11223341 | Registro: 22 | Aluno: Gabriela Moreira | Sala: 1 REG 1 | Retirada: 2026-04-13 | Devolucao: 2026-05-13
 ID: E69dd7v2q234pvq.22334452 | Registro: 22 | Aluno: Mateus Ribeiro | Sala: 2 REG 2 | Retirada: 2026-03-30 | Devolucao: 2026-04-09
+ID: 202604299290 | Registro: 3 | Aluno: Mariana Costa | Sala: 1 REG 3 | Retirada: 2026-04-29 | Devolucao: 2026-04-30
