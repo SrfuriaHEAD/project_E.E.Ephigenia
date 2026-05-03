@@ -1,0 +1,4 @@
+---HISTORICO---
+ID: 202605039294 | Registro: 19 | Livro: A Metamorfose | Aluno: Arthur Abner | Sala: 2 Reg 3 | Retirada: 2026-05-03 | Devolucao: 2026-05-08 | Ano: 2026
+ID: 202605038973 | Registro: 1 | Livro: A arte da guerra | Aluno: Arthur Abner | Sala: 2 Reg 3 | Retirada: 2026-05-03 | Devolucao: 2026-05-08 | Ano: 2026
+ID: 202605032837 | Registro: 11 | Livro: Crime e Castigo | Aluno: Joao Silva | Sala: 2 REg 3 | Retirada: 2026-05-03 | Devolucao: 2026-05-08 | Ano: 2026

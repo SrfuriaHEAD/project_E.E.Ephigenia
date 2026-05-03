@@ -164,11 +164,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $id       = date('Ymd') . rand(1000, 9999);
         $retirada = date('Y-m-d');
+        $ano      = date('Y');
         $linha    = "ID: $id | Registro: $registro | Aluno: $aluno | Sala: $sala | Retirada: $retirada | Devolucao: $devolucao\n";
 
         if (file_put_contents($arqEmprestimos, $linha, FILE_APPEND | LOCK_EX) === false) {
             json_out(['success' => false, 'msg' => 'Erro ao salvar empréstimo.']);
         }
+
+        // ── Grava também no histórico permanente ─────────────────────────────
+        $arqHistorico = $diretorio . '/historico.txt';
+        if (!file_exists($arqHistorico)) {
+            file_put_contents($arqHistorico, "---HISTORICO---\n", LOCK_EX);
+        }
+        $nomelivro  = $livro['nome'];
+        $linhaHist  = "ID: $id | Registro: $registro | Livro: $nomelivro | Aluno: $aluno | Sala: $sala | Retirada: $retirada | Devolucao: $devolucao | Ano: $ano\n";
+        file_put_contents($arqHistorico, $linhaHist, FILE_APPEND | LOCK_EX);
+
         json_out(['success' => true, 'msg' => 'Empréstimo registrado com sucesso!']);
     }
 
@@ -795,8 +806,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <span class="logo-name">E.E. Ephigenia</span>
     </div>
     <nav class="header-nav">
+      <span class="nav-tag">Acervo</span>
       <div class="nav-dot"></div>
       <a href="cadastrar.php" class="nav-link">+ Registrar livro</a>
+      <div class="nav-dot"></div>
+      <a href="dashboard.php" class="nav-link">Painel de Controle</a>
       <div class="nav-dot"></div>
       <span class="nav-year"><?= date('Y') ?></span>
     </nav>
@@ -864,6 +878,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <span class="footer-text">Sistema de Biblioteca</span>
     <span class="footer-sep">/</span>
     <span class="footer-text">Desenvolvido por Arthur A. 2 Reg 3</span>
+    <span class="footer-sep">/</span>
+    <span class="footer-text" style="flex: 1; text-align: right; color: #ffffff;">®todos direitos reservados</span>
+    <span class="nav-year"><?= date('Y') ?></span>
   </div>
 </footer>
 
@@ -1053,9 +1070,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     const [y,m,d] = iso.split('-');
     return `${d}/${m}/${y}`;
   }
+  function hojeISO() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
   function addDays(n) {
     const d = new Date(); d.setDate(d.getDate() + n);
-    return d.toISOString().slice(0,10);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
   function diasRestantes(iso) {
     const [y, m, d] = iso.split('-').map(Number);
@@ -1259,7 +1280,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!devolucao) {
       msg.textContent = '⚠ Escolha o prazo de devolução.'; msg.style.color = '#cc6600'; return;
     }
-    if (devolucao <= new Date().toISOString().slice(0,10)) {
+    if (devolucao <= hojeISO()) {
       msg.textContent = '⚠ A data de devolução deve ser a partir de amanhã.'; msg.style.color = '#cc6600'; return;
     }
     const data = await post({ acao:'emprestar_livro', registro:modalRegistro, aluno, sala, devolucao });
@@ -1438,7 +1459,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     else if (sel.value === 'custom') devolucao = inp.value;
 
     if (!devolucao) { msg.textContent = '⚠ Escolha uma data.'; msg.style.color = '#cc6600'; return; }
-    if (devolucao <= new Date().toISOString().slice(0,10)) {
+    if (devolucao <= hojeISO()) {
       msg.textContent = '⚠ Data deve ser futura.'; msg.style.color = '#cc6600'; return;
     }
     msg.textContent = '…'; msg.style.color = '#888';
@@ -1517,6 +1538,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!buscaIniciada) {
       buscaIniciada = true;
 
+      // Busca categorias disponíveis para popular o select
+      let catOptions = '<option value="">Todas as categorias</option>';
+      try {
+        const catData = await post({ acao: 'buscar_aluno', busca: '', categoria: '' });
+        if (catData.success && catData.categorias) {
+          catData.categorias.forEach(c => {
+            const g = GENERO[c];
+            const label = g ? (g[0] ? `${g[0]} — ${g[1]}` : g[1]) : c;
+            catOptions += `<option value="${esc(c)}">${esc(label)}</option>`;
+          });
+        }
+      } catch(e) {}
+
       document.getElementById('tab-alunos').innerHTML = `
         <div class="search-header" style="margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem">
           <span class="section-label">BUSCA</span>
@@ -1524,30 +1558,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
-            <input id="search-aluno" type="text" placeholder="Nome, sala ou título do livro… )" autocomplete="off">
+            <input id="search-aluno" type="text" placeholder="Nome, sala ou título do livro…" autocomplete="off">
           </div>
+          <select id="filter-cat-alunos" class="filter-select" style="min-width:190px">
+            ${catOptions}
+          </select>
+          <select id="filter-status-alunos" class="filter-select" style="min-width:150px">
+            <option value="">Todos os status</option>
+            <option value="atrasado">⚠ Atrasados</option>
+            <option value="hoje">⚠ Vencem hoje</option>
+            <option value="proximo">Vencem em 3 dias</option>
+            <option value="ok">Em dia</option>
+          </select>
           <span class="tip" data-tip="Busca por aluno, sala/turma&#10;ou título do livro.&#10;Não diferencia maiúsculas.">?</span>
-          
           <span id="count-alunos" style="font-family:var(--font-mono);font-size:0.6rem;color:#666"></span>
         </div>
         <div id="resultado-alunos"></div>`;
 
       document.getElementById('search-aluno').addEventListener('input', function () {
         clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => carregarAlunos(this.value.trim(), document.getElementById('filter-cat').value), 300);
+        searchTimer = setTimeout(() => carregarAlunos(
+          this.value.trim(),
+          document.getElementById('filter-cat-alunos').value,
+          document.getElementById('filter-status-alunos').value
+        ), 300);
       });
-      
+      document.getElementById('filter-cat-alunos').addEventListener('change', function () {
+        carregarAlunos(
+          document.getElementById('search-aluno').value.trim(),
+          this.value,
+          document.getElementById('filter-status-alunos').value
+        );
+      });
+      document.getElementById('filter-status-alunos').addEventListener('change', function () {
+        carregarAlunos(
+          document.getElementById('search-aluno').value.trim(),
+          document.getElementById('filter-cat-alunos').value,
+          this.value
+        );
+      });
     }
-    carregarAlunos('', '');
+    carregarAlunos('', '', '');
   }
 
-  async function carregarAlunos(q, cat) {
+  async function carregarAlunos(q, cat, status) {
     const resultado = document.getElementById('resultado-alunos');
     const contador  = document.getElementById('count-alunos');
     if (!resultado) return;
-    const data = await post({ acao: 'buscar_aluno', busca: q, categoria: cat });
+    const data = await post({ acao: 'buscar_aluno', busca: q, categoria: cat || '' });
     if (!data.success) return;
-    const emps = data.emprestimos;
+    let emps = data.emprestimos;
+
+    // Filtro client-side por status
+    if (status) {
+      emps = emps.filter(e => {
+        const dias = diasRestantes(e.devolucao);
+        if (status === 'atrasado') return dias < 0;
+        if (status === 'hoje')     return dias === 0;
+        if (status === 'proximo')  return dias > 0 && dias <= 3;
+        if (status === 'ok')       return dias > 3;
+        return true;
+      });
+    }
+
     if (contador) contador.textContent = `${emps.length} empréstimo${emps.length !== 1 ? 's' : ''} ativo${emps.length !== 1 ? 's' : ''}`;
     resultado.innerHTML = emps.length === 0
       ? '<p class="empty-state" style="padding:2rem;color:#333;font-style:italic;font-family:var(--font-mono);font-size:0.75rem">Nenhum empréstimo encontrado.</p>'
@@ -1555,8 +1628,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ${emps.map(e => {
             const dias = diasRestantes(e.devolucao);
             let cls = '', info = `Devolver até ${fmtDate(e.devolucao)}`;
-            if (dias < 0)        { cls = 'atrasado'; info = `⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias) !== 1 ? 's' : ''}`; }
-            else if (dias === 0) { cls = 'hoje';     info = '⚠ Devolver HOJE'; }
+            if (dias < 0)        { cls = 'atrasado'; info = `⚠ Atrasado ${Math.abs(dias)} dia${Math.abs(dias) !== 1 ? 's' : ''} (era ${fmtDate(e.devolucao)})`; }
+            else if (dias === 0) { cls = 'hoje';     info = `⚠ Devolver HOJE (${fmtDate(e.devolucao)})`; }
             else if (dias <= 3)    info = `Em ${dias} dia${dias !== 1 ? 's' : ''} (${fmtDate(e.devolucao)})`;
             const genInfo = e.faixaEtaria ? (GENERO[e.faixaEtaria] || ['', e.faixaEtaria]) : null;
             const catBadge = genInfo
