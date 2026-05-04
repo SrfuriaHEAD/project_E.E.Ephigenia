@@ -148,6 +148,7 @@ $jsMapaPrat    = json_encode($mapaPrateleiras, JSON_UNESCAPED_UNICODE);
 <title>Dashboard — Biblioteca E.E. Ephigenia</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="src/static/style.css">
 <style>
 :root {
   --bg:       #0e0e0e;
@@ -171,7 +172,7 @@ $jsMapaPrat    = json_encode($mapaPrateleiras, JSON_UNESCAPED_UNICODE);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:#f4f6f9;color:var(--text);font-family:var(--font-sans);min-height:100vh;overflow-x:hidden}
+body{background: #fff;color:var(--text);font-family:var(--font-sans);min-height:100vh;overflow-x:hidden}
 
 /* ── Noise overlay ─────────────────────── */
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
@@ -304,10 +305,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .badge.danger{background:rgba(192,57,43,.15);color:var(--danger)}
 
 /* ── Exportar ─────────────────────────── */
-.export-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-.export-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:12px}
-.export-card-title{font-family:var(--font-mono);font-size:.72rem;color:var(--rust);letter-spacing:.08em;text-transform:uppercase}
-.export-card-desc{font-size:.82rem;color:var(--muted);flex:1}
 .btn{border:none;cursor:pointer;font-family:var(--font-mono);font-size:.75rem;padding:9px 16px;border-radius:4px;transition:all .2s;display:inline-flex;align-items:center;gap:6px;width:100%;justify-content:center}
 .btn-rust{background:var(--rust);color:#fff}
 .btn-rust:hover{background:var(--rust2)}
@@ -316,6 +313,107 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .email-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:.78rem;padding:8px 12px;border-radius:4px;width:100%;outline:none;transition:border-color .2s}
 .email-input:focus{border-color:var(--rust)}
 .email-input::placeholder{color:var(--muted)}
+
+/* ── Export redesign ──────────────────── */
+.export-layout{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+@media(max-width:900px){.export-layout{grid-template-columns:1fr}}
+
+/* Painel de seleção */
+.export-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.export-panel-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.export-panel-header svg{color:var(--rust);flex-shrink:0}
+.export-panel-title{font-family:var(--font-serif);font-size:1.05rem}
+.export-panel-title em{color:var(--rust2);font-style:italic}
+.export-panel-sub{font-family:var(--font-mono);font-size:.65rem;color:var(--muted);margin-top:2px}
+
+/* Seções de seleção */
+.export-section-group{border-bottom:1px solid var(--border)}
+.export-section-group:last-child{border-bottom:none}
+.export-section-toggle{width:100%;background:none;border:none;padding:14px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--text);font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;transition:background .2s;text-align:left}
+.export-section-toggle:hover{background:var(--rust-dim)}
+.export-section-toggle .est-icon{width:28px;height:28px;border-radius:4px;background:var(--rust-dim);border:1px solid rgba(181,69,27,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.export-section-toggle.selected .est-icon{background:var(--rust);border-color:var(--rust)}
+.export-section-toggle .est-label{flex:1}
+.export-section-toggle .est-arrow{color:var(--muted);transition:transform .2s;font-size:.8rem}
+.export-section-toggle.open .est-arrow{transform:rotate(180deg)}
+.export-section-body{display:none;padding:0 20px 14px;border-top:1px solid rgba(42,42,42,.5)}
+.export-section-body.open{display:block}
+
+/* Checkboxes */
+.export-checks{display:flex;flex-direction:column;gap:8px;padding-top:12px}
+.export-check-item{display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:8px 10px;border-radius:4px;border:1px solid transparent;transition:all .2s}
+.export-check-item:hover{background:var(--surface2);border-color:var(--border)}
+.export-check-item input[type=checkbox]{display:none}
+.check-box{width:16px;height:16px;border:1.5px solid var(--border);border-radius:3px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.export-check-item input:checked ~ .check-label .check-box,
+.export-check-item.checked .check-box{background:var(--rust);border-color:var(--rust)}
+.export-check-item.checked .check-box::after{content:'✓';font-size:.6rem;color:#fff;font-weight:700}
+.check-label{flex:1;display:flex;align-items:center;gap:8px}
+.check-text{font-size:.82rem;color:var(--text)}
+.check-desc{font-family:var(--font-mono);font-size:.63rem;color:var(--muted);margin-top:2px}
+
+/* Painel lateral de ações */
+.export-actions-panel{display:flex;flex-direction:column;gap:14px}
+.export-action-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.export-action-card.featured{border-color:rgba(0, 0, 0, 0.9);background:rgba(0, 0, 0, 0.9)}
+.eac-head{display:flex;align-items:center;gap:10px}
+.eac-icon{width:36px;height:36px;border-radius:6px;background:var(--rust-dim);border:1px solid rgba(181,69,27,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem}
+.eac-title{font-family:var(--font-mono);font-size:.72rem;color:var(--rust);letter-spacing:.08em;text-transform:uppercase}
+.eac-desc{font-size:.8rem;color:var(--muted);line-height:1.5}
+.eac-btn{border:none;cursor:pointer;font-family:var(--font-mono);font-size:.72rem;padding:9px 16px;border-radius:5px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;letter-spacing:.04em}
+.eac-btn-rust{background:var(--rust);color:#fff}
+.eac-btn-rust:hover{background:var(--rust2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(181,69,27,.3)}
+.eac-btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.eac-btn-outline:hover{border-color:var(--rust);color:var(--rust)}
+.eac-btn-google{background:#fff;color:#333;border:1px solid #ddd}
+.eac-btn-google:hover{box-shadow:0 2px 8px rgba(0,0,0,.2);transform:translateY(-1px)}
+.eac-btn-drive{background:#1a73e8;color:#fff}
+.eac-btn-drive:hover{background:#1557b0;transform:translateY(-1px);box-shadow:0 4px 16px rgba(26,115,232,.35)}
+.export-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:.75rem;padding:9px 12px;border-radius:4px;width:100%;outline:none;transition:border-color .2s}
+.export-input:focus{border-color:var(--rust)}
+.export-input::placeholder{color:var(--muted)}
+
+/* Preview do documento */
+.doc-preview{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.doc-preview-bar{padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:var(--font-mono);font-size:.65rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.doc-preview-bar span{color:var(--rust)}
+.doc-preview-body{padding:20px;font-family:var(--font-mono);font-size:.72rem;color:var(--muted);max-height:200px;overflow-y:auto;line-height:1.7}
+.doc-preview-body .dp-title{font-family:var(--font-serif);font-size:1rem;color:var(--text);margin-bottom:4px}
+.doc-preview-body .dp-section{color:var(--rust);letter-spacing:.08em;text-transform:uppercase;font-size:.62rem;margin:12px 0 4px;border-bottom:1px solid var(--border);padding-bottom:4px}
+.doc-preview-body .dp-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid rgba(42,42,42,.3)}
+.doc-preview-body .dp-row span:last-child{color:var(--text)}
+
+/* Seleção geral rápida */
+.export-quick-select{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.eqs-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);font-family:var(--font-mono);font-size:.65rem;padding:6px 12px;border-radius:20px;cursor:pointer;transition:all .2s;letter-spacing:.06em}
+.eqs-btn:hover{border-color:var(--rust);color:var(--rust)}
+.eqs-btn.active{background:var(--rust-dim);border-color:var(--rust);color:var(--rust2)}
+
+/* Toast de feedback */
+.export-toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 18px;font-family:var(--font-mono);font-size:.75rem;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;gap:10px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.export-toast.show{transform:translateY(0);opacity:1}
+.export-toast.ok{border-color:var(--ok)}
+.export-toast.err{border-color:var(--danger)}
+.toast-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.export-toast.ok .toast-dot{background:var(--ok)}
+.export-toast.err .toast-dot{background:var(--danger)}
+
+/* Modal Google */
+.google-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:8000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
+.google-modal-bg.open{opacity:1;pointer-events:all}
+.google-modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:440px;width:90%;max-height:90vh;overflow-y:auto;transform:scale(.95);transition:transform .25s}
+.google-modal-bg.open .google-modal{transform:scale(1)}
+.gm-title{font-family:var(--font-serif);font-size:1.2rem;margin-bottom:4px}
+.gm-title em{color:var(--rust2);font-style:italic}
+.gm-sub{font-family:var(--font-mono);font-size:.68rem;color:var(--muted);margin-bottom:20px}
+.gm-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.gm-label{font-family:var(--font-mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.gm-actions{display:flex;gap:10px;margin-top:20px}
+.gm-actions button{flex:1}
+.gm-status{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:var(--font-mono);font-size:.72rem;color:var(--muted);margin-top:14px;display:none;line-height:1.6}
+.gm-status.show{display:block}
+.gm-status.ok{border-color:var(--ok);color:var(--ok)}
+.gm-status.err{border-color:var(--danger);color:var(--danger)}
 
 /* ── Scrollbar ───────────────────────── */
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -338,6 +436,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <!-- Overlay -->
 <div class="overlay" id="overlay"></div>
+
+<!-- Toast -->
+<div class="export-toast" id="exportToast">
+  <div class="toast-dot"></div>
+  <span id="toastMsg">Operação concluída</span>
+</div>
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
@@ -568,34 +672,213 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="section-header">
       <div class="section-label">Exportação</div>
       <h1 class="section-title" style="color: #333;">Ex<em>portar</em></h1>
-      <div class="section-sub">Baixe ou envie relatórios do acervo</div>
+      <div class="section-sub">Selecione as seções, o formato e o destino do relatório</div>
     </div>
-    <div class="export-grid">
-      <div class="export-card">
-        <div class="export-card-title">📊 CSV</div>
-        <div class="export-card-desc">Tabela completa de empréstimos ativos com status, aluno, sala e prazos.</div>
-        <button class="btn btn-rust" onclick="exportCSV()">↓ Baixar CSV</button>
+
+    <!-- Seleção rápida -->
+    <div class="export-quick-select">
+      <button class="eqs-btn" onclick="selectAll(true)">Selecionar tudo</button>
+      <button class="eqs-btn" onclick="selectAll(false)">Limpar seleção</button>
+      <button class="eqs-btn" onclick="selectPreset('emprestimos')">Só empréstimos</button>
+      <button class="eqs-btn" onclick="selectPreset('acervo')">Só acervo</button>
+      <button class="eqs-btn" onclick="selectPreset('alertas')">Só alertas</button>
+    </div>
+
+    <div class="export-layout">
+
+      <!-- Painel de seleção de conteúdo -->
+      <div>
+        <div class="export-panel">
+          <div class="export-panel-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <div>
+              <div class="export-panel-title">Conteúdo do <em>Relatório</em></div>
+              <div class="export-panel-sub">Escolha o que será incluído no documento exportado</div>
+            </div>
+          </div>
+
+          <!-- Métricas Gerais -->
+          <div class="export-section-group">
+            <div class="export-check-item" id="chk-metricas" onclick="toggleCheck('metricas')">
+              <div class="check-box" id="box-metricas"></div>
+              <div class="check-label" style="flex-direction:column;align-items:flex-start">
+                <span class="check-text">📊 Métricas Gerais</span>
+                <span class="check-desc">Títulos, exemplares, empréstimos ativos, disponíveis, alunos</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empréstimos Ativos -->
+          <div class="export-section-group">
+            <button class="export-section-toggle" id="tog-emprestimos" onclick="toggleGroup('emprestimos')">
+              <div class="est-icon" id="icon-emprestimos">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+              <span class="est-label">📋 Empréstimos Ativos</span>
+              <span class="est-arrow">▾</span>
+            </button>
+            <div class="export-section-body" id="body-emprestimos">
+              <div class="export-checks">
+                <div class="export-check-item" id="chk-emp-lista" onclick="toggleCheck('emp-lista')">
+                  <div class="check-box" id="box-emp-lista"></div>
+                  <div class="check-label" style="flex-direction:column;align-items:flex-start">
+                    <span class="check-text">Lista completa de empréstimos</span>
+                    <span class="check-desc">Aluno, livro, sala, data de retirada e devolução</span>
+                  </div>
+                </div>
+                <div class="export-check-item" id="chk-emp-atraso" onclick="toggleCheck('emp-atraso')">
+                  <div class="check-box" id="box-emp-atraso"></div>
+                  <div class="check-label" style="flex-direction:column;align-items:flex-start">
+                    <span class="check-text">Devoluções em atraso</span>
+                    <span class="check-desc">Somente os registros vencidos com dias de atraso</span>
+                  </div>
+                </div>
+                <div class="export-check-item" id="chk-emp-vencendo" onclick="toggleCheck('emp-vencendo')">
+                  <div class="check-box" id="box-emp-vencendo"></div>
+                  <div class="check-label" style="flex-direction:column;align-items:flex-start">
+                    <span class="check-text">Vencendo em 7 dias</span>
+                    <span class="check-desc">Alertas de devolução próxima</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acervo -->
+          <div class="export-section-group">
+            <button class="export-section-toggle" id="tog-acervo" onclick="toggleGroup('acervo')">
+              <div class="est-icon" id="icon-acervo">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+              <span class="est-label">📚 Acervo</span>
+              <span class="est-arrow">▾</span>
+            </button>
+            <div class="export-section-body" id="body-acervo">
+              <div class="export-checks">
+                <div class="export-check-item" id="chk-acervo-lista" onclick="toggleCheck('acervo-lista')">
+                  <div class="check-box" id="box-acervo-lista"></div>
+                  <div class="check-label" style="flex-direction:column;align-items:flex-start">
+                    <span class="check-text">Lista completa do acervo</span>
+                    <span class="check-desc">Todos os livros com autor, prateleira e faixa etária</span>
+                  </div>
+                </div>
+                <div class="export-check-item" id="chk-acervo-ranking" onclick="toggleCheck('acervo-ranking')">
+                  <div class="check-box" id="box-acervo-ranking"></div>
+                  <div class="check-label" style="flex-direction:column;align-items:flex-start">
+                    <span class="check-text">Ranking dos mais emprestados</span>
+                    <span class="check-desc">Top livros por número de empréstimos históricos</span>
+                  </div>
+                </div>
+                <div class="export-check-item" id="chk-acervo-salas" onclick="toggleCheck('acervo-salas')">
+                  <div class="check-box" id="box-acervo-salas"></div>
+                  <div class="check-label" style="flex-direction:column;align-items:flex-start">
+                    <span class="check-text">Empréstimos por sala/turma</span>
+                    <span class="check-desc">Distribuição dos empréstimos ativos por turma</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Histórico -->
+          <div class="export-section-group">
+            <div class="export-check-item" id="chk-historico" onclick="toggleCheck('historico')">
+              <div class="check-box" id="box-historico"></div>
+              <div class="check-label" style="flex-direction:column;align-items:flex-start">
+                <span class="check-text">🕓 Histórico Completo</span>
+                <span class="check-desc">Todos os empréstimos já realizados (pode ser longo)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview ao vivo -->
+        <div class="doc-preview" style="margin-top:16px">
+          <div class="doc-preview-bar">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            pré-visualização do documento · <span id="previewSections">nenhuma seção selecionada</span>
+          </div>
+          <div class="doc-preview-body" id="docPreview">
+            <div style="color:var(--border);text-align:center;padding:20px 0">Selecione seções acima para pré-visualizar o relatório</div>
+          </div>
+        </div>
       </div>
-      <div class="export-card">
-        <div class="export-card-title">📝 DOCX / Word</div>
-        <div class="export-card-desc">Relatório gerencial formatado com métricas, alertas e ranking — pronto para impressão.</div>
-        <button class="btn btn-rust" onclick="exportDOCX()">↓ Baixar DOCX</button>
-      </div>
-      <div class="export-card">
-        <div class="export-card-title">🖨️ Imprimir</div>
-        <div class="export-card-desc">Abre a janela de impressão com o relatório formatado. Use "Salvar como PDF" no navegador.</div>
-        <button class="btn btn-outline" onclick="imprimirRelatorio()">Imprimir / PDF</button>
-      </div>
-      <div class="export-card">
-        <div class="export-card-title">✉️ Enviar por E-mail</div>
-        <div class="export-card-desc">Abre seu cliente de e-mail com o relatório no corpo da mensagem.</div>
-        <input type="email" class="email-input" id="emailDest" placeholder="destinatario@email.com">
-        <button class="btn btn-rust" onclick="enviarEmail()">Enviar por Gmail</button>
+
+      <!-- Painel de ações -->
+      <div class="export-actions-panel">
+
+        <!-- Downloads locais -->
+        <div class="export-action-card featured">
+          <div class="eac-head">
+            <div class="eac-icon">📄</div>
+            <div>
+              <div class="eac-title">Baixar Arquivo</div>
+            </div>
+          </div>
+          <p class="eac-desc">Gera o relatório com as seções selecionadas e faz o download direto no seu dispositivo.</p>
+          <div style="display:flex;gap:8px;flex-direction:column">
+            <button class="eac-btn eac-btn-rust" onclick="exportarPDF()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Imprimir / Salvar PDF
+            </button>
+            <button class="eac-btn eac-btn-outline" onclick="exportarCSVFiltrado()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Baixar CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Gmail -->
+        <div class="export-action-card">
+          <div class="eac-head">
+            <div class="eac-icon">✉️</div>
+            <div>
+              <div class="eac-title">Enviar por Gmail</div>
+            </div>
+          </div>
+          <p class="eac-desc">Abre o Gmail com o relatório pronto no corpo do e-mail, formatado para leitura.</p>
+          <input type="email" class="export-input" id="gmailDest" placeholder="destinatario@escola.com">
+          <input type="text" class="export-input" id="gmailAssunto" placeholder="Assunto (opcional)" value="Relatório — Biblioteca E.E. Ephigenia">
+          <button class="eac-btn eac-btn-google" onclick="enviarGmail()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 4H4C2.9 4 2 4.9 2 6v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" fill="#EA4335" opacity=".2"/><path d="M2 6l10 7 10-7" stroke="#EA4335" stroke-width="1.5"/></svg>
+            Abrir no Gmail
+          </button>
+        </div>
+
+        <!-- Google Drive -->
+        <div class="export-action-card">
+          <div class="eac-head">
+            <div class="eac-icon">☁️</div>
+            <div>
+              <div class="eac-title">Salvar no Drive</div>
+            </div>
+          </div>
+          <p class="eac-desc">Faz upload do relatório diretamente para o Google Drive como documento de texto.</p>
+          <input type="text" class="export-input" id="driveFilename" placeholder="Nome do arquivo no Drive" value="Relatório Biblioteca <?= date('d-m-Y') ?>">
+          <button class="eac-btn eac-btn-drive" onclick="salvarDrive()">
+            <svg width="14" height="14" viewBox="0 0 87.3 78" fill="none"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H10.55c0 1.55.4 3.1 1.2 4.5z" fill="#0066DA"/><path d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3L2.5 48.3c-.8 1.4-1.2 2.95-1.2 4.5H27.5z" fill="#00AC47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H60.8l5.85 11.5z" fill="#EA4335"/><path d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.45-4.5 1.2z" fill="#00832D"/><path d="M60.8 53H27.5l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h51.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684FC"/><path d="M73.4 26.5l-13.1-22.7C59.5 2.4 58.35 1.3 57 .5L43.25 24.3l17.55 28.7H86.8c0-1.55-.4-3.1-1.2-4.5z" fill="#FFBA00"/></svg>
+            Fazer Upload para o Drive
+          </button>
+          <div id="driveStatus" class="gm-status"></div>
+        </div>
+
       </div>
     </div>
   </div>
 
 </main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span class="footer-school">E.E. Ephigenia</span>
+    <span class="footer-sep">/</span>
+    <span class="footer-text">Sistema de Biblioteca</span>
+    <span class="footer-sep">/</span>
+    <span class="footer-text">Desenvolvido por Arthur A. 2 Reg 3</span>
+    <span class="footer-text" style="flex: 1; text-align: right; color: #ffffff;">&copy; <?= date('Y') ?> Todos os direitos reservados</span>
+    <span class="nav-year"><?= date('Y') ?></span>
+  </div>
+</footer>
 
 <script>
 // ── Dados PHP → JS ────────────────────────────────────────────────────────
@@ -904,78 +1187,583 @@ function renderHistorico() {
 }
 
 // ── Exportação ────────────────────────────────────────────────────────────
-function exportCSV() {
-  const header = ['ID','Registro','Livro','Aluno','Sala','Retirada','Devolucao','Status'];
-  const rows   = EMPRESTIMOS.map(e => {
-    const livro = nomelivro(e.registro);
-    const status = e.devolucao < HOJE ? 'EM ATRASO' : 'No prazo';
-    return [e.id, e.registro, livro, e.aluno, e.sala, e.retirada, e.devolucao, status]
-           .map(v => `"${String(v).replace(/"/g,'""')}"`).join(',');
-  });
-  const csv = '\uFEFF' + [header.join(','), ...rows].join('\n');
-  downloadBlob(csv, 'emprestimos-biblioteca.csv', 'text/csv;charset=utf-8');
+
+// Estado dos checkboxes
+const CHECKS = {
+  'metricas': false, 'emp-lista': false, 'emp-atraso': false,
+  'emp-vencendo': false, 'acervo-lista': false, 'acervo-ranking': false,
+  'acervo-salas': false, 'historico': false
+};
+
+function toggleCheck(id) {
+  CHECKS[id] = !CHECKS[id];
+  const box = document.getElementById('box-' + id);
+  const item = document.getElementById('chk-' + id);
+  if (box)  box.style.cssText = CHECKS[id]
+    ? 'background:var(--rust);border-color:var(--rust);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.6rem;font-weight:700;width:16px;height:16px;border-radius:3px;flex-shrink:0;margin-top:1px;content:"✓"'
+    : '';
+  if (box && CHECKS[id]) box.innerHTML = '✓';
+  else if (box) box.innerHTML = '';
+  if (item) item.style.background = CHECKS[id] ? 'var(--rust-dim)' : '';
+  atualizarPreview();
 }
 
-function gerarRelatorio() {
+function toggleGroup(group) {
+  const body = document.getElementById('body-' + group);
+  const tog  = document.getElementById('tog-' + group);
+  if (!body) return;
+  body.classList.toggle('open');
+  if (tog) tog.classList.toggle('open');
+}
+
+function selectAll(on) {
+  Object.keys(CHECKS).forEach(k => {
+    if (CHECKS[k] !== on) toggleCheck(k);
+  });
+}
+
+function selectPreset(preset) {
+  selectAll(false);
+  if (preset === 'emprestimos') { toggleCheck('metricas'); toggleCheck('emp-lista'); toggleCheck('emp-atraso'); toggleCheck('emp-vencendo'); }
+  if (preset === 'acervo')      { toggleCheck('metricas'); toggleCheck('acervo-lista'); toggleCheck('acervo-ranking'); toggleCheck('acervo-salas'); }
+  if (preset === 'alertas')     { toggleCheck('emp-atraso'); toggleCheck('emp-vencendo'); }
+}
+
+function secSelecionadas() {
+  return Object.entries(CHECKS).filter(([,v]) => v).map(([k]) => k);
+}
+
+// ── Geração do relatório formatado ────────────────────────────────────────
+function gerarRelatorio(formato = 'txt') {
+  const secs = secSelecionadas();
+  const hoje = new Date().toLocaleDateString('pt-BR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const SEP  = '═'.repeat(60);
+  const sep  = '─'.repeat(60);
+
+  let doc = '';
+
+  if (formato === 'html') {
+    doc += `<html><head><meta charset="UTF-8"><title>Relatório Biblioteca</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Mono:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Mono',monospace;font-size:12px;color:#1a1a1a;background:#f8f6f1;padding:0}
+  .page{max-width:780px;margin:0 auto;background:#fff;padding:60px 56px;min-height:100vh}
+  .cover-stripe{height:4px;background:linear-gradient(90deg,#b5451b,#c9a84c);margin-bottom:40px;border-radius:2px}
+  .cover-pre{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#888;margin-bottom:6px}
+  .cover-title{font-family:'Playfair Display',Georgia,serif;font-size:28px;color:#1a1a1a;margin-bottom:4px}
+  .cover-title em{color:#b5451b;font-style:italic}
+  .cover-school{font-size:11px;color:#888;margin-bottom:4px}
+  .cover-date{font-size:10px;color:#aaa;margin-bottom:40px}
+  .cover-divider{border:none;border-top:1px solid #e8e2d9;margin:20px 0 32px}
+  .sec-label{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:#b5451b;margin-bottom:6px;margin-top:32px}
+  .sec-title{font-family:'Playfair Display',serif;font-size:16px;color:#1a1a1a;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #e8e2d9}
+  .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px}
+  .metric-box{background:#f8f6f1;border:1px solid #e8e2d9;border-radius:4px;padding:12px;text-align:center}
+  .metric-box .val{font-family:'Playfair Display',serif;font-size:22px;color:#1a1a1a}
+  .metric-box .lbl{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:10.5px}
+  th{background:#f0ece4;color:#888;font-size:9px;text-transform:uppercase;letter-spacing:.1em;padding:7px 10px;text-align:left;border-bottom:1px solid #e0dbd1}
+  td{padding:7px 10px;border-bottom:1px solid #f0ece4;vertical-align:top;line-height:1.4}
+  tr:nth-child(even) td{background:#faf8f5}
+  .badge-danger{background:#fdecea;color:#c0392b;padding:2px 7px;border-radius:2px;font-size:9px}
+  .badge-ok{background:#eaf5ee;color:#27ae60;padding:2px 7px;border-radius:2px;font-size:9px}
+  .badge-warn{background:#fef9ec;color:#c9a84c;padding:2px 7px;border-radius:2px;font-size:9px}
+  .rank-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f0ece4}
+  .rank-num{font-size:9px;color:#aaa;width:16px;text-align:right;flex-shrink:0}
+  .rank-bar-wrap{flex:1;height:4px;background:#f0ece4;border-radius:2px;overflow:hidden}
+  .rank-bar{height:100%;background:#b5451b;border-radius:2px}
+  .rank-cnt{font-size:10px;color:#b5451b;width:20px;text-align:right;flex-shrink:0}
+  .footer-doc{margin-top:48px;padding-top:12px;border-top:1px solid #e8e2d9;font-size:9px;color:#bbb;display:flex;justify-content:space-between}
+  @media print{body{background:#fff}.page{padding:30px 32px}}
+</style></head><body><div class="page">`;
+    doc += `<div class="cover-stripe"></div>
+<div class="cover-pre">Relatório Gerencial</div>
+<h1 class="cover-title">Biblio<em>teca</em></h1>
+<div class="cover-school">E.E. Ephigênia de Jesus Werneck — Santa Luzia, MG</div>
+<div class="cover-date">Emitido em ${hoje}</div>
+<hr class="cover-divider">`;
+  } else {
+    doc += `RELATÓRIO GERENCIAL — BIBLIOTECA\n`;
+    doc += `E.E. Ephigênia de Jesus Werneck — Santa Luzia, MG\n`;
+    doc += `Emitido em: ${hoje}\n${SEP}\n\n`;
+  }
+
+  // ── Métricas
+  if (secs.includes('metricas')) {
+    const totalEx  = LIVROS.reduce((s,l) => s+l.quantidade, 0);
+    if (formato === 'html') {
+      doc += `<div class="sec-label">Visão Geral</div>
+<div class="sec-title">Métricas do Acervo</div>
+<div class="metrics-grid">
+  <div class="metric-box"><div class="val">${LIVROS.length}</div><div class="lbl">Títulos</div></div>
+  <div class="metric-box"><div class="val">${totalEx}</div><div class="lbl">Exemplares</div></div>
+  <div class="metric-box"><div class="val">${EMPRESTIMOS.length}</div><div class="lbl">Emprestados</div></div>
+  <div class="metric-box"><div class="val">${Math.max(0,totalEx-EMPRESTIMOS.length)}</div><div class="lbl">Disponíveis</div></div>
+  <div class="metric-box"><div class="val" style="color:${EM_ATRASO.length>0?'#c0392b':'#27ae60'}">${EM_ATRASO.length}</div><div class="lbl">Em Atraso</div></div>
+  <div class="metric-box"><div class="val">${[...new Set(EMPRESTIMOS.map(e=>e.aluno))].length}</div><div class="lbl">Alunos Ativos</div></div>
+</div>`;
+    } else {
+      doc += `MÉTRICAS DO ACERVO\n${sep}\n`;
+      doc += `  Títulos no acervo ............... ${LIVROS.length}\n`;
+      doc += `  Exemplares totais ............... ${totalEx}\n`;
+      doc += `  Empréstimos ativos .............. ${EMPRESTIMOS.length}\n`;
+      doc += `  Disponíveis para empréstimo ..... ${Math.max(0,totalEx-EMPRESTIMOS.length)}\n`;
+      doc += `  Devoluções em atraso ............ ${EM_ATRASO.length}\n`;
+      doc += `  Alunos com livros em mãos ....... ${[...new Set(EMPRESTIMOS.map(e=>e.aluno))].length}\n\n`;
+    }
+  }
+
+  // ── Empréstimos - lista
+  if (secs.includes('emp-lista') && EMPRESTIMOS.length) {
+    if (formato === 'html') {
+      doc += `<div class="sec-label">Empréstimos</div><div class="sec-title">Empréstimos Ativos (${EMPRESTIMOS.length})</div>
+<table><thead><tr><th>#</th><th>Aluno</th><th>Livro</th><th>Sala</th><th>Retirada</th><th>Devolução</th><th>Status</th></tr></thead><tbody>`;
+      EMPRESTIMOS.forEach((e,i) => {
+        const at = e.devolucao < HOJE;
+        doc += `<tr><td>${i+1}</td><td>${e.aluno}</td><td>${nomelivro(e.registro)}</td><td>${e.sala}</td><td>${formatData(e.retirada)}</td><td>${formatData(e.devolucao)}</td><td><span class="${at?'badge-danger':'badge-ok'}">${at?'Em atraso':'No prazo'}</span></td></tr>`;
+      });
+      doc += `</tbody></table>`;
+    } else {
+      doc += `EMPRÉSTIMOS ATIVOS (${EMPRESTIMOS.length})\n${sep}\n`;
+      doc += `  ${'Nº'.padEnd(4)} ${'ALUNO'.padEnd(28)} ${'LIVRO'.padEnd(30)} ${'SALA'.padEnd(8)} ${'RETIRADA'.padEnd(12)} DEVOLUÇÃO\n`;
+      doc += `  ${'─'.repeat(100)}\n`;
+      EMPRESTIMOS.forEach((e,i) => {
+        const at = e.devolucao < HOJE ? ' ⚠ ATRASO' : '';
+        doc += `  ${String(i+1).padEnd(4)} ${e.aluno.padEnd(28)} ${nomelivro(e.registro).substring(0,30).padEnd(30)} ${e.sala.padEnd(8)} ${formatData(e.retirada).padEnd(12)} ${formatData(e.devolucao)}${at}\n`;
+      });
+      doc += '\n';
+    }
+  }
+
+  // ── Atraso
+  if (secs.includes('emp-atraso')) {
+    if (formato === 'html') {
+      doc += `<div class="sec-label">Alertas Críticos</div><div class="sec-title">Devoluções em Atraso (${EM_ATRASO.length})</div>`;
+      if (!EM_ATRASO.length) doc += `<p style="color:#27ae60;font-size:11px;padding:8px 0">✓ Nenhuma devolução em atraso.</p>`;
+      else {
+        doc += `<table><thead><tr><th>Aluno</th><th>Livro</th><th>Sala</th><th>Prazo</th><th>Atraso</th></tr></thead><tbody>`;
+        EM_ATRASO.forEach(e => {
+          const dias = diasAtraso(e.devolucao);
+          doc += `<tr><td>${e.aluno}</td><td>${nomelivro(e.registro)}</td><td>${e.sala}</td><td>${formatData(e.devolucao)}</td><td><span class="badge-danger">${dias} dia${dias>1?'s':''}</span></td></tr>`;
+        });
+        doc += `</tbody></table>`;
+      }
+    } else {
+      doc += `DEVOLUÇÕES EM ATRASO (${EM_ATRASO.length})\n${sep}\n`;
+      if (!EM_ATRASO.length) doc += `  ✓ Nenhuma devolução em atraso.\n\n`;
+      else EM_ATRASO.forEach(e => {
+        const dias = diasAtraso(e.devolucao);
+        doc += `  ⚠  ${e.aluno.padEnd(28)} ${nomelivro(e.registro).substring(0,30).padEnd(30)} Prazo: ${formatData(e.devolucao)}  [${dias}d de atraso]\n`;
+      });
+      doc += '\n';
+    }
+  }
+
+  // ── Vencendo
+  if (secs.includes('emp-vencendo')) {
+    if (formato === 'html') {
+      doc += `<div class="sec-label">Alertas</div><div class="sec-title">Vencendo em 7 Dias (${VENCENDO.length})</div>`;
+      if (!VENCENDO.length) doc += `<p style="color:#888;font-size:11px;padding:8px 0">Nenhum vencimento nos próximos 7 dias.</p>`;
+      else {
+        doc += `<table><thead><tr><th>Aluno</th><th>Livro</th><th>Sala</th><th>Prazo</th><th>Restam</th></tr></thead><tbody>`;
+        VENCENDO.forEach(e => {
+          const diff = Math.ceil((new Date(e.devolucao+'T00:00:00') - new Date(HOJE+'T00:00:00')) / 86400000);
+          doc += `<tr><td>${e.aluno}</td><td>${nomelivro(e.registro)}</td><td>${e.sala}</td><td>${formatData(e.devolucao)}</td><td><span class="badge-warn">${diff} dia${diff>1?'s':''}</span></td></tr>`;
+        });
+        doc += `</tbody></table>`;
+      }
+    } else {
+      doc += `VENCENDO EM 7 DIAS (${VENCENDO.length})\n${sep}\n`;
+      if (!VENCENDO.length) doc += `  Nenhum vencimento próximo.\n\n`;
+      else VENCENDO.forEach(e => {
+        const diff = Math.ceil((new Date(e.devolucao+'T00:00:00') - new Date(HOJE+'T00:00:00')) / 86400000);
+        doc += `  ⏰  ${e.aluno.padEnd(28)} ${nomelivro(e.registro).substring(0,30).padEnd(30)} Prazo: ${formatData(e.devolucao)}  [${diff}d restantes]\n`;
+      });
+      doc += '\n';
+    }
+  }
+
+  // ── Acervo lista
+  if (secs.includes('acervo-lista')) {
+    if (formato === 'html') {
+      doc += `<div class="sec-label">Acervo</div><div class="sec-title">Lista Completa do Acervo (${LIVROS.length} títulos)</div>
+<table><thead><tr><th>#</th><th>Título</th><th>Autor</th><th>Registro</th><th>Prateleira</th><th>Faixa Etária</th><th>Qtd</th></tr></thead><tbody>`;
+      LIVROS.forEach((l,i) => {
+        doc += `<tr><td>${i+1}</td><td>${l.nome}</td><td>${l.autor||'—'}</td><td>${l.registro}</td><td>${l.prateleira||'—'}</td><td>${l.faixaEtaria||'—'}</td><td>${l.quantidade}</td></tr>`;
+      });
+      doc += `</tbody></table>`;
+    } else {
+      doc += `ACERVO COMPLETO (${LIVROS.length} títulos)\n${sep}\n`;
+      LIVROS.forEach((l,i) => {
+        doc += `  ${String(i+1).padEnd(4)} ${l.nome.padEnd(40)} Autor: ${(l.autor||'—').padEnd(24)} Prat: ${l.prateleira||'—'} | Qtd: ${l.quantidade}\n`;
+      });
+      doc += '\n';
+    }
+  }
+
+  // ── Ranking
+  if (secs.includes('acervo-ranking')) {
+    const entries = Object.entries(TOP_LIVROS);
+    const max = entries[0]?.[1] || 1;
+    if (formato === 'html') {
+      doc += `<div class="sec-label">Ranking</div><div class="sec-title">Livros Mais Emprestados</div>`;
+      if (!entries.length) doc += `<p style="color:#888;font-size:11px">Sem dados no histórico.</p>`;
+      else {
+        doc += `<div style="margin-top:8px">`;
+        entries.forEach(([nome,cnt],i) => {
+          const pct = Math.round((cnt/max)*100);
+          doc += `<div class="rank-row"><span class="rank-num">${i+1}</span><span style="flex:1;font-size:11px">${nome}</span><div class="rank-bar-wrap"><div class="rank-bar" style="width:${pct}%"></div></div><span class="rank-cnt">${cnt}</span></div>`;
+        });
+        doc += `</div>`;
+      }
+    } else {
+      doc += `RANKING — MAIS EMPRESTADOS\n${sep}\n`;
+      entries.forEach(([nome,cnt],i) => { doc += `  ${String(i+1).padEnd(3)} ${nome.padEnd(44)} ${cnt} empréstimo(s)\n`; });
+      doc += '\n';
+    }
+  }
+
+  // ── Empréstimos por sala
+  if (secs.includes('acervo-salas')) {
+    if (formato === 'html') {
+      doc += `<div class="sec-label">Turmas</div><div class="sec-title">Empréstimos por Sala / Turma</div>
+<table><thead><tr><th>Sala</th><th>Empréstimos ativos</th></tr></thead><tbody>`;
+      Object.entries(SALAS).forEach(([s,c]) => { doc += `<tr><td>${s}</td><td>${c}</td></tr>`; });
+      doc += `</tbody></table>`;
+    } else {
+      doc += `EMPRÉSTIMOS POR SALA\n${sep}\n`;
+      Object.entries(SALAS).forEach(([s,c]) => { doc += `  ${s.padEnd(16)} ${c} empréstimo(s)\n`; });
+      doc += '\n';
+    }
+  }
+
+  // ── Histórico
+  if (secs.includes('historico')) {
+    if (formato === 'html') {
+      doc += `<div class="sec-label">Registros</div><div class="sec-title">Histórico Completo (${HISTORICO.length} registros)</div>
+<table><thead><tr><th>#</th><th>Livro</th><th>Aluno</th><th>Sala</th><th>Retirada</th><th>Devolução</th><th>Ano</th></tr></thead><tbody>`;
+      [...HISTORICO].reverse().forEach((h,i) => {
+        doc += `<tr><td>${i+1}</td><td>${h.livro}</td><td>${h.aluno}</td><td>${h.sala}</td><td>${formatData(h.retirada)}</td><td>${formatData(h.devolucao)}</td><td>${h.ano}</td></tr>`;
+      });
+      doc += `</tbody></table>`;
+    } else {
+      doc += `HISTÓRICO COMPLETO (${HISTORICO.length} registros)\n${sep}\n`;
+      [...HISTORICO].reverse().forEach((h,i) => {
+        doc += `  ${String(i+1).padEnd(4)} ${h.livro.substring(0,36).padEnd(36)} ${h.aluno.padEnd(28)} ${formatData(h.retirada)} → ${formatData(h.devolucao)} [${h.ano}]\n`;
+      });
+      doc += '\n';
+    }
+  }
+
+  if (formato === 'html') {
+    doc += `<div class="footer-doc"><span>E.E. Ephigênia de Jesus Werneck · Sistema de Biblioteca</span><span>Gerado por Arthur A. · ${hoje}</span></div>`;
+    doc += `</div></body></html>`;
+  } else {
+    doc += `${SEP}\nE.E. Ephigênia de Jesus Werneck · Sistema de Biblioteca\npor Arthur A. 2 Reg 3 · ${hoje}\n`;
+  }
+
+  return doc;
+}
+
+// ── Preview ao vivo ────────────────────────────────────────────────────────
+function atualizarPreview() {
+  const secs = secSelecionadas();
+  const preview = document.getElementById('docPreview');
+  const secLabel = document.getElementById('previewSections');
+
+  const nomes = { 'metricas':'Métricas', 'emp-lista':'Empréstimos', 'emp-atraso':'Atrasos', 'emp-vencendo':'Vencendo',
+                  'acervo-lista':'Acervo', 'acervo-ranking':'Ranking', 'acervo-salas':'Por Sala', 'historico':'Histórico' };
+  if (!secs.length) {
+    if (secLabel) secLabel.textContent = 'nenhuma seção selecionada';
+    if (preview) preview.innerHTML = '<div style="color:var(--border);text-align:center;padding:20px 0">Selecione seções acima para pré-visualizar</div>';
+    return;
+  }
+  if (secLabel) secLabel.textContent = secs.map(s => nomes[s]).join(' · ');
+
   const hoje = new Date().toLocaleDateString('pt-BR');
-  const total = LIVROS.length;
-  const empAtivos = EMPRESTIMOS.length;
-  const atraso = EM_ATRASO.length;
+  let html = `<div class="dp-title">Biblioteca — Relatório Gerencial</div>`;
+  html += `<div style="font-size:.62rem;color:var(--muted);margin-bottom:8px">E.E. Ephigênia · ${hoje}</div>`;
 
-  let txt = `RELATÓRIO — BIBLIOTECA E.E. EPHIGENIA\n`;
-  txt += `Gerado em: ${hoje}\n${'='.repeat(48)}\n\n`;
-  txt += `MÉTRICAS GERAIS\n${'-'.repeat(32)}\n`;
-  txt += `Títulos no acervo: ${total}\n`;
-  txt += `Exemplares totais: ${LIVROS.reduce((s,l)=>s+l.quantidade,0)}\n`;
-  txt += `Empréstimos ativos: ${empAtivos}\n`;
-  txt += `Em atraso: ${atraso}\n\n`;
-
-  txt += `EMPRÉSTIMOS EM ATRASO\n${'-'.repeat(32)}\n`;
-  if (EM_ATRASO.length) {
-    EM_ATRASO.forEach(e => {
-      txt += `• ${e.aluno} — ${nomelivro(e.registro)} (prazo: ${formatData(e.devolucao)})\n`;
+  if (secs.includes('metricas')) {
+    const totEx = LIVROS.reduce((s,l)=>s+l.quantidade,0);
+    html += `<div class="dp-section">Métricas</div>`;
+    html += `<div class="dp-row"><span>Títulos</span><span>${LIVROS.length}</span></div>`;
+    html += `<div class="dp-row"><span>Exemplares</span><span>${totEx}</span></div>`;
+    html += `<div class="dp-row"><span>Emprestados</span><span>${EMPRESTIMOS.length}</span></div>`;
+    html += `<div class="dp-row"><span>Em atraso</span><span style="color:${EM_ATRASO.length?'var(--danger)':'var(--ok)'}">${EM_ATRASO.length}</span></div>`;
+  }
+  if (secs.includes('emp-lista')) {
+    html += `<div class="dp-section">Empréstimos Ativos</div>`;
+    html += `<div class="dp-row"><span>Total de registros</span><span>${EMPRESTIMOS.length}</span></div>`;
+    EMPRESTIMOS.slice(0,3).forEach(e => {
+      html += `<div class="dp-row" style="font-size:.62rem"><span>${e.aluno}</span><span style="color:var(--muted)">${formatData(e.devolucao)}</span></div>`;
     });
-  } else { txt += 'Nenhum.\n'; }
-  txt += '\n';
+    if (EMPRESTIMOS.length > 3) html += `<div style="font-size:.6rem;color:var(--muted);padding-top:4px">… e mais ${EMPRESTIMOS.length-3} registros</div>`;
+  }
+  if (secs.includes('emp-atraso')) {
+    html += `<div class="dp-section">Em Atraso</div>`;
+    html += `<div class="dp-row"><span>Ocorrências</span><span style="color:var(--danger)">${EM_ATRASO.length}</span></div>`;
+  }
+  if (secs.includes('acervo-lista')) {
+    html += `<div class="dp-section">Acervo</div>`;
+    html += `<div class="dp-row"><span>Total de títulos</span><span>${LIVROS.length}</span></div>`;
+  }
+  if (secs.includes('acervo-ranking')) {
+    const top = Object.entries(TOP_LIVROS).slice(0,3);
+    html += `<div class="dp-section">Ranking</div>`;
+    top.forEach(([nome,cnt],i) => { html += `<div class="dp-row" style="font-size:.62rem"><span>${i+1}. ${nome.substring(0,28)}</span><span style="color:var(--rust)">${cnt}×</span></div>`; });
+  }
+  if (secs.includes('historico')) {
+    html += `<div class="dp-section">Histórico</div>`;
+    html += `<div class="dp-row"><span>Total de registros</span><span>${HISTORICO.length}</span></div>`;
+  }
 
-  txt += `RANKING — MAIS EMPRESTADOS\n${'-'.repeat(32)}\n`;
-  Object.entries(TOP_LIVROS).forEach(([nome,cnt],i) => {
-    txt += `${i+1}. ${nome}: ${cnt} empréstimo(s)\n`;
-  });
-
-  return txt;
+  if (preview) preview.innerHTML = html;
 }
 
-function exportDOCX() {
-  // Relatório em formato RTF (abre no Word)
-  const rel = gerarRelatorio();
-  const rtf = `{\\rtf1\\ansi\\deff0
-{\\fonttbl{\\f0 Arial;}}
-{\\colortbl ;\\red181\\green69\\blue27;}
-\\f0\\fs22
-{\\cf1\\b BIBLIOTECA E.E. EPHIGENIA — RELATÓRIO GERENCIAL\\b0\\cf0}\\par\\par
-${rel.split('\n').map(l => l.replace(/[\\{}]/g,'\\$&') + '\\par').join('\n')}
-}`;
-  downloadBlob(rtf, 'relatorio-biblioteca.rtf', 'application/rtf');
-}
-
-function imprimirRelatorio() {
-  const rel = gerarRelatorio();
+// ── Exportar PDF (impressão) ───────────────────────────────────────────────
+function exportarPDF() {
+  const secs = secSelecionadas();
+  if (!secs.length) { showToast('Selecione ao menos uma seção', 'err'); return; }
+  const html = gerarRelatorio('html');
   const win = window.open('', '_blank');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
-<title>Relatório Biblioteca</title>
-<style>body{font-family:monospace;font-size:13px;white-space:pre-wrap;padding:32px;color:#111}
-h1{font-size:16px;margin-bottom:8px}</style>
-</head><body>${rel.replace(/</g,'&lt;')}</body></html>`);
+  win.document.write(html);
   win.document.close();
-  win.print();
+  setTimeout(() => win.print(), 600);
 }
 
-function enviarEmail() {
-  const dest = document.getElementById('emailDest').value.trim();
-  const rel  = encodeURIComponent(gerarRelatorio());
-  const sub  = encodeURIComponent('Relatório — Biblioteca E.E. Ephigenia');
-  window.open(`mailto:${dest}?subject=${sub}&body=${rel}`);
+// ── Exportar CSV filtrado ─────────────────────────────────────────────────
+function exportarCSVFiltrado() {
+  const secs = secSelecionadas();
+  let csv = '\uFEFF';
+
+  if (secs.includes('metricas')) {
+    csv += 'SEÇÃO,MÉTRICA,VALOR\n';
+    csv += `Métricas,Títulos,${LIVROS.length}\n`;
+    csv += `Métricas,Exemplares,${LIVROS.reduce((s,l)=>s+l.quantidade,0)}\n`;
+    csv += `Métricas,Emprestados,${EMPRESTIMOS.length}\n`;
+    csv += `Métricas,Em Atraso,${EM_ATRASO.length}\n\n`;
+  }
+  if (secs.includes('emp-lista')) {
+    csv += 'ID,Registro,Livro,Aluno,Sala,Retirada,Devolucao,Status\n';
+    EMPRESTIMOS.forEach(e => {
+      const st = e.devolucao < HOJE ? 'EM ATRASO' : 'No prazo';
+      csv += [e.id,e.registro,nomelivro(e.registro),e.aluno,e.sala,e.retirada,e.devolucao,st]
+        .map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',') + '\n';
+    });
+    csv += '\n';
+  }
+  if (secs.includes('acervo-lista')) {
+    csv += 'Titulo,Autor,Registro,Prateleira,FaixaEtaria,Quantidade\n';
+    LIVROS.forEach(l => {
+      csv += [l.nome,l.autor,l.registro,l.prateleira,l.faixaEtaria,l.quantidade]
+        .map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',') + '\n';
+    });
+    csv += '\n';
+  }
+  if (secs.includes('acervo-ranking')) {
+    csv += 'Posicao,Livro,Total de Emprestimos\n';
+    Object.entries(TOP_LIVROS).forEach(([nome,cnt],i) => {
+      csv += `${i+1},"${nome}",${cnt}\n`;
+    });
+    csv += '\n';
+  }
+
+  if (csv.trim() === '\uFEFF') { showToast('Selecione seções que contenham dados tabulares', 'err'); return; }
+  downloadBlob(csv, `relatorio-biblioteca-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv;charset=utf-8');
+  showToast('CSV baixado com sucesso', 'ok');
+}
+
+// ── Enviar Gmail ────────────────────────────────────────────────────────────
+function gerarCorpoEmail() {
+  const secs = secSelecionadas();
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  let linhas = [];
+
+  linhas.push('RELATÓRIO — BIBLIOTECA E.E. EPHIGÊNIA DE JESUS WERNECK');
+  linhas.push('Gerado em: ' + hoje);
+  linhas.push('');
+
+  if (secs.includes('metricas')) {
+    linhas.push('── MÉTRICAS ──────────────────────────────────');
+    const totEx = LIVROS.reduce((s,l)=>s+l.quantidade,0);
+    linhas.push('Títulos cadastrados : ' + LIVROS.length);
+    linhas.push('Total de exemplares : ' + totEx);
+    linhas.push('Emprestados agora   : ' + EMPRESTIMOS.length);
+    linhas.push('Disponíveis         : ' + (totEx - EMPRESTIMOS.length));
+    linhas.push('Em atraso           : ' + EM_ATRASO.length);
+    linhas.push('');
+  }
+
+  if (secs.includes('emp-lista')) {
+    linhas.push('── EMPRÉSTIMOS ATIVOS (' + EMPRESTIMOS.length + ') ────────────────');
+    EMPRESTIMOS.forEach((e, i) => {
+      const livro = nomelivro(e.registro) || e.registro;
+      const status = e.devolucao < HOJE ? '⚠ ATRASO' : 'No prazo';
+      linhas.push((i+1) + '. ' + e.aluno);
+      linhas.push('   Livro     : ' + livro);
+      linhas.push('   Sala      : ' + (e.sala || '—'));
+      linhas.push('   Retirada  : ' + formatData(e.retirada));
+      linhas.push('   Devolução : ' + formatData(e.devolucao) + '  [' + status + ']');
+      linhas.push('');
+    });
+  }
+
+  if (secs.includes('emp-atraso') && EM_ATRASO.length) {
+    linhas.push('── EM ATRASO (' + EM_ATRASO.length + ') ──────────────────────────');
+    EM_ATRASO.forEach((e, i) => {
+      const dias = Math.floor((new Date(HOJE+'T00:00:00') - new Date(e.devolucao+'T00:00:00')) / 86400000);
+      linhas.push((i+1) + '. ' + e.aluno + ' — ' + (nomelivro(e.registro)||e.registro));
+      linhas.push('   Deveria devolver em ' + formatData(e.devolucao) + ' (' + dias + ' dia(s) de atraso)');
+      linhas.push('');
+    });
+  }
+
+  if (secs.includes('emp-vencendo') && VENCENDO.length) {
+    linhas.push('── VENCENDO EM 7 DIAS (' + VENCENDO.length + ') ─────────────────');
+    VENCENDO.forEach((e, i) => {
+      const diff = Math.ceil((new Date(e.devolucao+'T00:00:00') - new Date(HOJE+'T00:00:00')) / 86400000);
+      linhas.push((i+1) + '. ' + e.aluno + ' — ' + (nomelivro(e.registro)||e.registro));
+      linhas.push('   Devolução: ' + formatData(e.devolucao) + ' (' + diff + ' dia(s) restantes)');
+      linhas.push('');
+    });
+  }
+
+  if (secs.includes('acervo-ranking')) {
+    linhas.push('── RANKING — MAIS EMPRESTADOS ────────────────');
+    Object.entries(TOP_LIVROS).forEach(([nome, cnt], i) => {
+      linhas.push((i+1) + '. ' + nome + ' — ' + cnt + ' empréstimo(s)');
+    });
+    linhas.push('');
+  }
+
+  if (secs.includes('acervo-salas')) {
+    linhas.push('── EMPRÉSTIMOS POR SALA ──────────────────────');
+    Object.entries(SALAS).forEach(([s, c]) => {
+      linhas.push('Sala ' + s + ': ' + c + ' empréstimo(s)');
+    });
+    linhas.push('');
+  }
+
+  if (secs.includes('acervo-lista')) {
+    linhas.push('── ACERVO (' + LIVROS.length + ' títulos) ──────────────────────');
+    LIVROS.forEach((l, i) => {
+      linhas.push((i+1) + '. ' + l.nome);
+      if (l.autor) linhas.push('   Autor: ' + l.autor);
+      linhas.push('   Registro: ' + l.registro + ' | Prateleira: ' + (l.prateleira||'—') + ' | Qtd: ' + l.quantidade);
+      linhas.push('');
+    });
+  }
+
+  if (secs.includes('historico')) {
+    linhas.push('── HISTÓRICO (' + HISTORICO.length + ' registros) ──────────────');
+    [...HISTORICO].reverse().forEach((h, i) => {
+      linhas.push((i+1) + '. ' + h.aluno + ' — ' + h.livro);
+      linhas.push('   ' + formatData(h.retirada) + ' → ' + formatData(h.devolucao) + ' [' + h.ano + ']');
+      linhas.push('');
+    });
+  }
+
+  linhas.push('──────────────────────────────────────────────');
+  linhas.push('Sistema de Biblioteca · E.E. Ephigênia de Jesus Werneck');
+  linhas.push('por Arthur A. 2 Reg 3');
+
+  return linhas.join('\n');
+}
+
+function enviarGmail() {
+  const secs = secSelecionadas();
+  if (!secs.length) { showToast('Selecione ao menos uma seção', 'err'); return; }
+  const dest    = document.getElementById('gmailDest').value.trim();
+  const assunto = document.getElementById('gmailAssunto').value.trim() || 'Relatório — Biblioteca E.E. Ephigenia';
+
+  const LIMITE = 1800;
+  let corpo = gerarCorpoEmail();
+  let truncado = false;
+
+  if (corpo.length > LIMITE) {
+    truncado = true;
+    corpo = corpo.substring(0, LIMITE) +
+      '\n\n[⚠ Relatório truncado: conteúdo muito longo para envio direto pelo Gmail.' +
+      '\nUse Exportar CSV ou PDF para o relatório completo.]';
+  }
+
+  const params = new URLSearchParams({ view: 'cm', fs: '1', to: dest, su: assunto, body: corpo });
+  window.open('https://mail.google.com/mail/?' + params.toString(), '_blank');
+
+  if (truncado) {
+    showToast('⚠ Relatório truncado por ser muito longo', 'err');
+  } else {
+    showToast('Gmail aberto com sucesso', 'ok');
+  }
+}
+
+// ── Salvar no Google Drive ─────────────────────────────────────────────────
+async function salvarDrive() {
+  const secs = secSelecionadas();
+  if (!secs.length) { showToast('Selecione ao menos uma seção', 'err'); return; }
+
+  const status = document.getElementById('driveStatus');
+  const btn = document.querySelector('[onclick="salvarDrive()"]');
+  const filename = (document.getElementById('driveFilename').value.trim() || 'Relatório Biblioteca') + '.html';
+  const conteudo = gerarRelatorio('html');
+
+  btn.disabled = true;
+  btn.textContent = 'Aguardando autenticação…';
+  status.className = 'gm-status show';
+  status.textContent = '⏳ Abrindo autenticação do Google…';
+
+  try {
+    // Abre OAuth do Google para picker/Drive
+    // Como não temos backend PHP para OAuth, usamos a API de upload via token do GIS
+    const CLIENT_ID = ''; // Será preenchido pelo usuário se necessário
+    const SCOPES    = 'https://www.googleapis.com/auth/drive.file';
+
+    if (!window.google?.accounts?.oauth2) {
+      // Carrega GIS se ainda não foi carregado
+      await new Promise((res,rej) => {
+        if (document.getElementById('gis-script')) { res(); return; }
+        const s = document.createElement('script');
+        s.id = 'gis-script';
+        s.src = 'https://accounts.google.com/gsi/client';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+
+    // Como não há client_id configurado neste ambiente, baixa o HTML localmente
+    // e direciona o usuário para o Drive
+    const blob = new Blob([conteudo], { type: 'text/html;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+
+    setTimeout(() => {
+      window.open('https://drive.google.com/drive/my-drive', '_blank');
+    }, 800);
+
+    status.className = 'gm-status show ok';
+    status.innerHTML = `✓ Arquivo <strong>${filename}</strong> baixado.<br>O Google Drive foi aberto — faça o upload do arquivo baixado.<br><small style="opacity:.7">Para upload automático, configure o OAuth Client ID nas configurações do sistema.</small>`;
+    showToast('Arquivo pronto para upload', 'ok');
+  } catch(err) {
+    status.className = 'gm-status show err';
+    status.textContent = '✗ Erro: ' + err.message;
+    showToast('Erro ao acessar Drive', 'err');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 87.3 78" fill="none"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H10.55c0 1.55.4 3.1 1.2 4.5z" fill="#0066DA"/><path d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3L2.5 48.3c-.8 1.4-1.2 2.95-1.2 4.5H27.5z" fill="#00AC47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H60.8l5.85 11.5z" fill="#EA4335"/><path d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.45-4.5 1.2z" fill="#00832D"/><path d="M60.8 53H27.5l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h51.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684FC"/><path d="M73.4 26.5l-13.1-22.7C59.5 2.4 58.35 1.3 57 .5L43.25 24.3l17.55 28.7H86.8c0-1.55-.4-3.1-1.2-4.5z" fill="#FFBA00"/></svg> Fazer Upload para o Drive`;
+  }
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'ok') {
+  const t = document.getElementById('exportToast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = `export-toast ${type} show`;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
 function downloadBlob(content, filename, mime) {
@@ -985,6 +1773,12 @@ function downloadBlob(content, filename, mime) {
   a.href = url; a.download = filename; a.click();
   URL.revokeObjectURL(url);
 }
+
+// Funções antigas mantidas para compatibilidade
+function exportCSV() { exportarCSVFiltrado(); }
+function exportDOCX() { exportarPDF(); }
+function imprimirRelatorio() { exportarPDF(); }
+function enviarEmail() { enviarGmail(); }
 </script>
 </body>
 </html>

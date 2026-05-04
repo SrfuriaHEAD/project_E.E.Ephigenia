@@ -878,8 +878,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <span class="footer-text">Sistema de Biblioteca</span>
     <span class="footer-sep">/</span>
     <span class="footer-text">Desenvolvido por Arthur A. 2 Reg 3</span>
-    <span class="footer-sep">/</span>
-    <span class="footer-text" style="flex: 1; text-align: right; color: #ffffff;">®todos direitos reservados</span>
+    <span class="footer-text" style="flex: 1; text-align: right; color: #ffffff;">&copy; <?= date('Y') ?> Todos os direitos reservados</span>
     <span class="nav-year"><?= date('Y') ?></span>
   </div>
 </footer>
