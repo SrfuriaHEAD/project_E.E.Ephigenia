@@ -836,12 +836,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
               <div class="eac-title">Enviar por Gmail</div>
             </div>
           </div>
-          <p class="eac-desc">Abre o Gmail com o relatório pronto no corpo do e-mail, formatado para leitura.</p>
-          <input type="email" class="export-input" id="gmailDest" placeholder="destinatario@escola.com">
-          <input type="text" class="export-input" id="gmailAssunto" placeholder="Assunto (opcional)" value="Relatório — Biblioteca E.E. Ephigenia">
+          <p class="eac-desc">Copia o relatório para a área de transferência e abre o Gmail. Cole o texto no corpo do e-mail com <strong>Ctrl+V</strong>.</p>
           <button class="eac-btn eac-btn-google" onclick="enviarGmail()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 4H4C2.9 4 2 4.9 2 6v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" fill="#EA4335" opacity=".2"/><path d="M2 6l10 7 10-7" stroke="#EA4335" stroke-width="1.5"/></svg>
-            Abrir no Gmail
+            Copiar e Abrir Gmail
           </button>
         </div>
 
@@ -1245,43 +1243,72 @@ function gerarRelatorio(formato = 'txt') {
   if (formato === 'html') {
     doc += `<html><head><meta charset="UTF-8"><title>Relatório Biblioteca</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Mono:wght@400;500&display=swap');
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'DM Mono',monospace;font-size:12px;color:#1a1a1a;background:#f8f6f1;padding:0}
-  .page{max-width:780px;margin:0 auto;background:#fff;padding:60px 56px;min-height:100vh}
-  .cover-stripe{height:4px;background:linear-gradient(90deg,#b5451b,#c9a84c);margin-bottom:40px;border-radius:2px}
-  .cover-pre{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#888;margin-bottom:6px}
-  .cover-title{font-family:'Playfair Display',Georgia,serif;font-size:28px;color:#1a1a1a;margin-bottom:4px}
-  .cover-title em{color:#b5451b;font-style:italic}
-  .cover-school{font-size:11px;color:#888;margin-bottom:4px}
-  .cover-date{font-size:10px;color:#aaa;margin-bottom:40px}
-  .cover-divider{border:none;border-top:1px solid #e8e2d9;margin:20px 0 32px}
-  .sec-label{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:#b5451b;margin-bottom:6px;margin-top:32px}
-  .sec-title{font-family:'Playfair Display',serif;font-size:16px;color:#1a1a1a;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #e8e2d9}
-  .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px}
-  .metric-box{background:#f8f6f1;border:1px solid #e8e2d9;border-radius:4px;padding:12px;text-align:center}
-  .metric-box .val{font-family:'Playfair Display',serif;font-size:22px;color:#1a1a1a}
-  .metric-box .lbl{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
-  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:10.5px}
-  th{background:#f0ece4;color:#888;font-size:9px;text-transform:uppercase;letter-spacing:.1em;padding:7px 10px;text-align:left;border-bottom:1px solid #e0dbd1}
-  td{padding:7px 10px;border-bottom:1px solid #f0ece4;vertical-align:top;line-height:1.4}
-  tr:nth-child(even) td{background:#faf8f5}
-  .badge-danger{background:#fdecea;color:#c0392b;padding:2px 7px;border-radius:2px;font-size:9px}
-  .badge-ok{background:#eaf5ee;color:#27ae60;padding:2px 7px;border-radius:2px;font-size:9px}
-  .badge-warn{background:#fef9ec;color:#c9a84c;padding:2px 7px;border-radius:2px;font-size:9px}
-  .rank-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f0ece4}
-  .rank-num{font-size:9px;color:#aaa;width:16px;text-align:right;flex-shrink:0}
-  .rank-bar-wrap{flex:1;height:4px;background:#f0ece4;border-radius:2px;overflow:hidden}
-  .rank-bar{height:100%;background:#b5451b;border-radius:2px}
-  .rank-cnt{font-size:10px;color:#b5451b;width:20px;text-align:right;flex-shrink:0}
-  .footer-doc{margin-top:48px;padding-top:12px;border-top:1px solid #e8e2d9;font-size:9px;color:#bbb;display:flex;justify-content:space-between}
-  @media print{body{background:#fff}.page{padding:30px 32px}}
+  body{font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#111;background:#fff}
+  .page{max-width:800px;margin:0 auto;background:#fff;padding:50px 54px;min-height:100vh}
+
+  /* Cabeçalho institucional */
+  .header-inst{display:flex;align-items:flex-start;gap:18px;padding-bottom:18px;border-bottom:2px solid #003366;margin-bottom:6px}
+  .header-inst-logo{width:60px;height:60px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid #ccc;border-radius:2px;font-size:8px;color:#888;text-align:center;line-height:1.3;padding:4px}
+  .header-inst-text{flex:1}
+  .header-inst-gov{font-size:9px;color:#555;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px}
+  .header-inst-school{font-size:15px;font-weight:bold;color:#003366;margin-bottom:2px}
+  .header-inst-sub{font-size:10px;color:#444}
+  .doc-type{text-align:center;margin:18px 0 6px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#555}
+  .doc-title{text-align:center;font-size:17px;font-weight:bold;color:#111;margin-bottom:4px}
+  .doc-date{text-align:center;font-size:10px;color:#666;margin-bottom:6px}
+  .doc-ref{text-align:center;font-size:9px;color:#888;margin-bottom:20px;font-style:italic}
+  .cover-divider{border:none;border-top:1px solid #ccc;margin:0 0 24px}
+
+  /* Seções */
+  .sec-label{font-size:8.5px;letter-spacing:.15em;text-transform:uppercase;color:#003366;margin-bottom:4px;margin-top:28px;font-weight:bold}
+  .sec-title{font-size:13px;font-weight:bold;color:#111;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid #003366}
+
+  /* Métricas */
+  .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+  .metric-box{border:1px solid #ccc;padding:10px 12px;text-align:center;background:#f5f7fa}
+  .metric-box .val{font-size:22px;font-weight:bold;color:#111;line-height:1.1}
+  .metric-box .lbl{font-size:8.5px;color:#555;text-transform:uppercase;letter-spacing:.08em;margin-top:3px}
+
+  /* Tabelas */
+  table{width:100%;border-collapse:collapse;margin-top:6px;font-size:10.5px}
+  th{background:#003366;color:#fff;font-size:9px;text-transform:uppercase;letter-spacing:.08em;padding:6px 9px;text-align:left}
+  td{padding:6px 9px;border-bottom:1px solid #ddd;vertical-align:top;line-height:1.4}
+  tr:nth-child(even) td{background:#f5f7fa}
+
+  /* Badges */
+  .badge-danger{background:#fdecea;color:#c0392b;padding:2px 6px;font-size:9px;border:1px solid #f5c6c2}
+  .badge-ok{background:#e9f7ef;color:#1e8449;padding:2px 6px;font-size:9px;border:1px solid #a9dfbf}
+  .badge-warn{background:#fef9e7;color:#b7950b;padding:2px 6px;font-size:9px;border:1px solid #f9e79f}
+
+  /* Ranking */
+  .rank-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #eee}
+  .rank-num{font-size:9px;color:#888;width:16px;text-align:right;flex-shrink:0}
+  .rank-bar-wrap{flex:1;height:5px;background:#e8ecf0;border-radius:2px;overflow:hidden}
+  .rank-bar{height:100%;background:#003366;border-radius:2px}
+  .rank-cnt{font-size:10px;color:#003366;font-weight:bold;width:22px;text-align:right;flex-shrink:0}
+
+  /* Rodapé */
+  .footer-doc{margin-top:48px;padding-top:10px;border-top:2px solid #003366;font-size:9px;color:#555;display:flex;justify-content:space-between}
+  .footer-doc-center{text-align:center;font-size:8.5px;color:#888;margin-top:4px}
+
+  @media print{
+    body{background:#fff}
+    .page{padding:20px 28px;max-width:100%}
+    .sec-label{margin-top:20px}
+  }
 </style></head><body><div class="page">`;
-    doc += `<div class="cover-stripe"></div>
-<div class="cover-pre">Relatório Gerencial</div>
-<h1 class="cover-title">Biblio<em>teca</em></h1>
-<div class="cover-school">E.E. Ephigênia de Jesus Werneck — Santa Luzia, MG</div>
-<div class="cover-date">Emitido em ${hoje}</div>
+    doc += `<div class="header-inst">
+  <div class="header-inst-logo"><img style="width:100%;height:auto;" src="src/static/logo.png" alt="Logo"></div>
+  <div class="header-inst-text">
+    <div class="header-inst-school">E.E. Ephigênia de Jesus Werneck</div>
+    <div class="header-inst-sub">Biblioteca Escolar · Santa Luzia — MG</div>
+  </div>
+</div>
+<div class="doc-type">Documento Oficial</div>
+<div class="doc-title">Relatório Gerencial — Biblioteca</div>
+<div class="doc-date">Emitido em ${hoje}</div>
+<div class="doc-ref">Gerado automaticamente pelo Sistema de Gestão da Biblioteca</div>
 <hr class="cover-divider">`;
   } else {
     doc += `RELATÓRIO GERENCIAL — BIBLIOTECA\n`;
@@ -1457,7 +1484,7 @@ function gerarRelatorio(formato = 'txt') {
   }
 
   if (formato === 'html') {
-    doc += `<div class="footer-doc"><span>E.E. Ephigênia de Jesus Werneck · Sistema de Biblioteca</span><span>Gerado por Arthur A. · ${hoje}</span></div>`;
+    doc += `<div class="footer-doc"><span>E.E. Ephigênia de Jesus Werneck · Biblioteca Escolar · Santa Luzia, MG</span><span>Emitido em ${hoje}</span></div><div class="footer-doc-center">Sistema de Gestão da Biblioteca · Documento gerado eletronicamente</div>`;
     doc += `</div></body></html>`;
   } else {
     doc += `${SEP}\nE.E. Ephigênia de Jesus Werneck · Sistema de Biblioteca\npor Arthur A. 2 Reg 3 · ${hoje}\n`;
@@ -1675,28 +1702,28 @@ function gerarCorpoEmail() {
 function enviarGmail() {
   const secs = secSelecionadas();
   if (!secs.length) { showToast('Selecione ao menos uma seção', 'err'); return; }
-  const dest    = document.getElementById('gmailDest').value.trim();
-  const assunto = document.getElementById('gmailAssunto').value.trim() || 'Relatório — Biblioteca E.E. Ephigenia';
 
-  const LIMITE = 1800;
-  let corpo = gerarCorpoEmail();
-  let truncado = false;
+  const corpo = gerarCorpoEmail();
 
-  if (corpo.length > LIMITE) {
-    truncado = true;
-    corpo = corpo.substring(0, LIMITE) +
-      '\n\n[⚠ Relatório truncado: conteúdo muito longo para envio direto pelo Gmail.' +
-      '\nUse Exportar CSV ou PDF para o relatório completo.]';
-  }
-
-  const params = new URLSearchParams({ view: 'cm', fs: '1', to: dest, su: assunto, body: corpo });
-  window.open('https://mail.google.com/mail/?' + params.toString(), '_blank');
-
-  if (truncado) {
-    showToast('⚠ Relatório truncado por ser muito longo', 'err');
-  } else {
-    showToast('Gmail aberto com sucesso', 'ok');
-  }
+  navigator.clipboard.writeText(corpo).then(() => {
+    window.open('https://mail.google.com/mail/u/0/#compose', '_blank');
+    showToast('Texto copiado! Cole no corpo do e-mail (Ctrl+V)', 'ok');
+  }).catch(() => {
+    // Fallback para navegadores sem permissão de clipboard
+    const ta = document.createElement('textarea');
+    ta.value = corpo;
+    ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try {
+      document.execCommand('copy');
+      window.open('https://mail.google.com/mail/u/0/#compose', '_blank');
+      showToast('Texto copiado! Cole no corpo do e-mail (Ctrl+V)', 'ok');
+    } catch(e) {
+      showToast('Erro ao copiar. Copie manualmente.', 'err');
+    }
+    document.body.removeChild(ta);
+  });
 }
 
 // ── Salvar no Google Drive ─────────────────────────────────────────────────
