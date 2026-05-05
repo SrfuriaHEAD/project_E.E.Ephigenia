@@ -194,7 +194,6 @@
               <option value="4A">4A — Romance</option>
               <option value="5A">5A — Literatura Brasileira</option>
               <option value="6A">6A — Poesia</option>
-              <option value="guerra">Guerra</option>
               <option value="TODOS">Todas as idades</option>
             </select>
             <span class="field-bar"></span>
