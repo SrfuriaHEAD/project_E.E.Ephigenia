@@ -1,23 +1,33 @@
 ---BANCO DE DADOS---
-Nome: A arte da guerra | Registro: 1 | Quantidade: 2 | Autor: Sun Tzu | Prateleira: A2 | FaixaEtaria: guerra
-Nome: João e o pé de feijão | Registro: 2 | Quantidade: 5 | Autor: Joseph Jacobs | Prateleira: B1 | FaixaEtaria: 1A
-Nome: 1984 | Registro: 3 | Quantidade: 2 | Autor: George Orwell | Prateleira: A2 | FaixaEtaria: 3A
-Nome: O Senhor dos Anéis | Registro: 4 | Quantidade: 3 | Autor: J.R.R. Tolkien | Prateleira: B2 | FaixaEtaria: 3A
-Nome: Harry Potter e a Pedra Filosofal | Registro: 5 | Quantidade: 4 | Autor: J.K. Rowling | Prateleira: C1 | FaixaEtaria: 1A
-Nome: Dom Quixote | Registro: 6 | Quantidade: 2 | Autor: Miguel de Cervantes | Prateleira: A3 | FaixaEtaria: 4A
-Nome: O Pequeno Príncipe | Registro: 7 | Quantidade: 6 | Autor: Antoine de Saint-Exupéry | Prateleira: B1 | FaixaEtaria: 1A
-Nome: Sapiens: Uma Breve História da Humanidade | Registro: 8 | Quantidade: 2 | Autor: Yuval Noah Harari | Prateleira: B3 | FaixaEtaria: TODOS
-Nome: O Alquimista | Registro: 9 | Quantidade: 3 | Autor: Paulo Coelho | Prateleira: C3 | FaixaEtaria: 4A
-Nome: Admirável Mundo Novo | Registro: 10 | Quantidade: 2 | Autor: Aldous Huxley | Prateleira: C2 | FaixaEtaria: 3A
-Nome: Crime e Castigo | Registro: 11 | Quantidade: 1 | Autor: Fiódor Dostoiévski | Prateleira: D3 | FaixaEtaria: 4A
-Nome: O Hobbit | Registro: 12 | Quantidade: 3 | Autor: J.R.R. Tolkien | Prateleira: D2 | FaixaEtaria: 1A
-Nome: Vidas Secas | Registro: 13 | Quantidade: 4 | Autor: Graciliano Ramos | Prateleira: A4 | FaixaEtaria: 5A
-Nome: O Cortiço | Registro: 14 | Quantidade: 2 | Autor: Aluísio Azevedo | Prateleira: B4 | FaixaEtaria: 5A
-Nome: Iracema | Registro: 15 | Quantidade: 3 | Autor: José de Alencar | Prateleira: C4 | FaixaEtaria: 5A
-Nome: A Moreninha | Registro: 16 | Quantidade: 2 | Autor: Joaquim Manuel de Macedo | Prateleira: D4 | FaixaEtaria: 5A
-Nome: Grande Sertão: Veredas | Registro: 17 | Quantidade: 1 | Autor: João Guimarães Rosa | Prateleira: E4 | FaixaEtaria: 5A
-Nome: A Metamorfose | Registro: 19 | Quantidade: 2 | Autor: Franz Kafka | Prateleira: E2 | FaixaEtaria: 2A
-Nome: O Diário de Anne Frank | Registro: 22 | Quantidade: 3 | Autor: Anne Frank | Prateleira: D1 | FaixaEtaria: guerra
-Nome: Dom kshot | Registro: 23 | Quantidade: 2
-Nome: divina comedia | Registro: 24 | Quantidade: 5 | FaixaEtaria: suspense
-Nome: Arthur Abner | Registro: 25 | Quantidade: 5 | Autor: Arthur A | Prateleira: E3 | FaixaEtaria: 5A
+Nome: A Arte da Guerra | Registro: 1 | Quantidade: 2 | Autor: Sun Tzu | Editora: L&PM Pocket | Ano: 2006 | Prateleira: A2 | FaixaEtaria: TODOS
+Nome: João e o Pé de Feijão | Registro: 2 | Quantidade: 5 | Autor: Joseph Jacobs | Editora: Ática | Ano: 2010 | Prateleira: B1 | FaixaEtaria: 1A
+Nome: 1984 | Registro: 3 | Quantidade: 2 | Autor: George Orwell | Editora: Companhia das Letras | Ano: 2009 | Prateleira: A2 | FaixaEtaria: 3A
+Nome: O Senhor dos Anéis | Registro: 4 | Quantidade: 3 | Autor: J.R.R. Tolkien | Editora: Martins Fontes | Ano: 2001 | Prateleira: B2 | FaixaEtaria: 3A
+Nome: Harry Potter e a Pedra Filosofal | Registro: 5 | Quantidade: 4 | Autor: J.K. Rowling | Editora: Rocco | Ano: 2000 | Prateleira: C1 | FaixaEtaria: 1A
+Nome: Dom Quixote | Registro: 6 | Quantidade: 2 | Autor: Miguel de Cervantes | Editora: Nova Aguilar | Ano: 2004 | Prateleira: A3 | FaixaEtaria: 4A
+Nome: O Pequeno Príncipe | Registro: 7 | Quantidade: 6 | Autor: Antoine de Saint-Exupéry | Editora: Agir | Ano: 2009 | Prateleira: B1 | FaixaEtaria: TODOS
+Nome: Sapiens: Uma Breve História da Humanidade | Registro: 8 | Quantidade: 2 | Autor: Yuval Noah Harari | Editora: L&PM | Ano: 2015 | Prateleira: B3 | FaixaEtaria: TODOS
+Nome: O Alquimista | Registro: 9 | Quantidade: 3 | Autor: Paulo Coelho | Editora: HarperCollins | Ano: 1988 | Prateleira: C3 | FaixaEtaria: 4A
+Nome: Admirável Mundo Novo | Registro: 10 | Quantidade: 2 | Autor: Aldous Huxley | Editora: Globo | Ano: 2014 | Prateleira: C2 | FaixaEtaria: 3A
+Nome: Crime e Castigo | Registro: 11 | Quantidade: 1 | Autor: Fiódor Dostoiévski | Editora: Editora 34 | Ano: 2001 | Prateleira: D3 | FaixaEtaria: 4A
+Nome: O Hobbit | Registro: 12 | Quantidade: 3 | Autor: J.R.R. Tolkien | Editora: Martins Fontes | Ano: 2012 | Prateleira: D2 | FaixaEtaria: 1A
+Nome: Vidas Secas | Registro: 13 | Quantidade: 4 | Autor: Graciliano Ramos | Editora: Record | Ano: 2013 | Prateleira: A4 | FaixaEtaria: 5A
+Nome: O Cortiço | Registro: 14 | Quantidade: 2 | Autor: Aluísio Azevedo | Editora: Ática | Ano: 2011 | Prateleira: B4 | FaixaEtaria: 5A
+Nome: Iracema | Registro: 15 | Quantidade: 3 | Autor: José de Alencar | Editora: Saraiva | Ano: 2010 | Prateleira: C4 | FaixaEtaria: 5A
+Nome: A Moreninha | Registro: 16 | Quantidade: 2 | Autor: Joaquim Manuel de Macedo | Editora: Scipione | Ano: 2008 | Prateleira: D4 | FaixaEtaria: 5A
+Nome: Grande Sertão: Veredas | Registro: 17 | Quantidade: 1 | Autor: João Guimarães Rosa | Editora: Nova Fronteira | Ano: 2006 | Prateleira: E4 | FaixaEtaria: 5A
+Nome: A Metamorfose | Registro: 19 | Quantidade: 2 | Autor: Franz Kafka | Editora: Companhia das Letras | Ano: 2012 | Prateleira: E2 | FaixaEtaria: 2A
+Nome: O Diário de Anne Frank | Registro: 22 | Quantidade: 3 | Autor: Anne Frank | Editora: Record | Ano: 2018 | Prateleira: D1 | FaixaEtaria: TODOS
+Nome: Dom Casmurro | Registro: 23 | Quantidade: 2 | Autor: Machado de Assis | Editora: Ática | Ano: 2009 | Prateleira: A1 | FaixaEtaria: 5A
+Nome: A Divina Comédia | Registro: 24 | Quantidade: 5 | Autor: Dante Alighieri | Editora: Itatiaia | Ano: 2011 | Prateleira: E3 | FaixaEtaria: 4A
+Nome: Memórias Póstumas de Brás Cubas | Registro: 25 | Quantidade: 4 | Autor: Machado de Assis | Editora: Penguin-Companhia | Ano: 2012 | Prateleira: A1 | FaixaEtaria: 5A
+Nome: O Conde de Monte Cristo | Registro: 26 | Quantidade: 3 | Autor: Alexandre Dumas | Editora: Martin Claret | Ano: 2015 | Prateleira: B2 | FaixaEtaria: 4A
+Nome: A Revolução dos Bichos | Registro: 27 | Quantidade: 4 | Autor: George Orwell | Editora: Companhia das Letras | Ano: 2007 | Prateleira: C2 | FaixaEtaria: 3A
+Nome: Pinóquio | Registro: 28 | Quantidade: 5 | Autor: Carlo Collodi | Editora: Zahar | Ano: 2013 | Prateleira: C1 | FaixaEtaria: 1A
+Nome: O Menino do Pijama Listrado | Registro: 29 | Quantidade: 3 | Autor: John Boyne | Editora: Companhia das Letras | Ano: 2007 | Prateleira: D1 | FaixaEtaria: 2A
+Nome: Frankenstein | Registro: 30 | Quantidade: 2 | Autor: Mary Shelley | Editora: Penguin | Ano: 2017 | Prateleira: E2 | FaixaEtaria: 3A
+Nome: Poemas de Carlos Drummond de Andrade | Registro: 31 | Quantidade: 4 | Autor: Carlos Drummond de Andrade | Editora: Record | Ano: 2012 | Prateleira: A3 | FaixaEtaria: TODOS
+Nome: O Guarani | Registro: 32 | Quantidade: 3 | Autor: José de Alencar | Editora: Ática | Ano: 2010 | Prateleira: B4 | FaixaEtaria: 5A
+Nome: Chapeuzinho Vermelho | Registro: 33 | Quantidade: 6 | Autor: Charles Perrault | Editora: FTD | Ano: 2011 | Prateleira: B1 | FaixaEtaria: 1A
+Nome: A Ilha do Tesouro | Registro: 34 | Quantidade: 3 | Autor: Robert Louis Stevenson | Editora: Scipione | Ano: 2008 | Prateleira: C1 | FaixaEtaria: 2A
+Nome: O Carteiro e o Poeta | Registro: 35 | Quantidade: 2 | Autor: Antonio Skármeta | Editora: Companhia das Letras | Ano: 2005 | Prateleira: E1 | FaixaEtaria: 4A
