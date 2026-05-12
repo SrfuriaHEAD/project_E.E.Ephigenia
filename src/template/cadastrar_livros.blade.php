@@ -138,50 +138,31 @@
         </div>
 
         <div class="field-group" style="flex:2;min-width:160px">
-          <label class="field-label" for="f-prateleira">Prateleira</label>
-          <div class="field-wrap">
-            <select class="field-input" id="f-prateleira" name="prateleira"
-                    style="appearance:none;-webkit-appearance:none;cursor:pointer">
-              <option value="">— Selecionar —</option>
-              <optgroup label="Prateleira A">
-                <option value="A1">A1</option>
-                <option value="A2">A2</option>
-                <option value="A3">A3</option>
-                <option value="A4">A4</option>
-                <option value="A5">A5</option>
-              </optgroup>
-              <optgroup label="Prateleira B">
-                <option value="B1">B1</option>
-                <option value="B2">B2</option>
-                <option value="B3">B3</option>
-                <option value="B4">B4</option>
-                <option value="B5">B5</option>
-              </optgroup>
-              <optgroup label="Prateleira C">
-                <option value="C1">C1</option>
-                <option value="C2">C2</option>
-                <option value="C3">C3</option>
-                <option value="C4">C4</option>
-                <option value="C5">C5</option>
-              </optgroup>
-              <optgroup label="Prateleira D">
-                <option value="D1">D1</option>
-                <option value="D2">D2</option>
-                <option value="D3">D3</option>
-                <option value="D4">D4</option>
-                <option value="D5">D5</option>
-              </optgroup>
-              <optgroup label="Prateleira E">
-                <option value="E1">E1</option>
-                <option value="E2">E2</option>
-                <option value="E3">E3</option>
-                <option value="E4">E4</option>
-                <option value="E5">E5</option>
-              </optgroup>
-            </select>
-            <span class="field-bar"></span>
-          </div>
-        </div>
+  <label class="field-label" for="f-prateleira">Prateleira</label>
+  <div class="field-wrap">
+    <!-- Trocamos o select pelo input com o atributo list -->
+    <input 
+      type="text" 
+      class="field-input" 
+      id="f-prateleira" 
+      name="prateleira" 
+      list="prateleiras-list" 
+      placeholder="Digite ou selecione..."
+      autocomplete="off"
+    >
+    
+    <!-- O datalist contém as opções que o banco de dados já possui -->
+    <datalist id="prateleiras-list">
+      <option value="P1">
+      <option value="P2">
+      <option value="P3">
+      <option value="P4">
+      <option value="P5">
+    </datalist>
+    
+    <span class="field-bar"></span>
+  </div>
+</div>
 
         <div class="field-group" style="flex:2;min-width:200px">
           <label class="field-label" for="f-faixa-etaria">Classificação / Gênero</label>
@@ -194,6 +175,7 @@
               <option value="4A">4A — Romance</option>
               <option value="5A">5A — Literatura Brasileira</option>
               <option value="6A">6A — Poesia</option>
+	      
               <option value="TODOS">Todas as idades</option>
             </select>
             <span class="field-bar"></span>

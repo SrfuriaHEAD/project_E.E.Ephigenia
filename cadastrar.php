@@ -35,6 +35,8 @@ require __DIR__ . '/src/functions/cadastrar_livro.php';
       <div class="nav-dot"></div>
       <a href="acervo.php" class="nav-link">← Ver acervo</a>
       <div class="nav-dot"></div>
+      <a href="dashboard.php" class="nav-link">Painel de Controle</a>
+      <div class="nav-dot"></div>
       <span class="nav-year"><?= date('Y') ?></span>
     </nav>
   </div>
@@ -58,6 +60,8 @@ require __DIR__ . '/src/functions/cadastrar_livro.php';
     <span class="footer-text">Sistema de Biblioteca</span>
     <span class="footer-sep">/</span>
     <span class="footer-text">Desenvolvido por Arthur A. 2 Reg 3</span>
+    <span class="footer-text" style="flex: 1; text-align: right; color: #ffffff;">&copy; <?= date('Y') ?> Todos os direitos reservados</span>
+    <span class="nav-year"><?= date('Y') ?></span>
   </div>
 </footer>
 

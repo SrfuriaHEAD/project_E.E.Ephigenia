@@ -1,3 +1,40 @@
 ---BANCO DE DADOS---
-Nome: hery potter | Registro: 1 | Quantidade: 5 | FaixaEtaria: 3A
-Nome: A Arte Da Guerra | Registro: 2 | Quantidade: 1 | FaixaEtaria: guerra
+Nome: A aventura da tartaruga-de-pente | Registro: 1 | Quantidade: 1 | Autor: Rosana Rios | Editora: Scipione | Ano: 1993 | Prateleira: 1 | FaixaEtaria: 1A
+Nome: As aventuras de huckleberry finn | Registro: 2 | Quantidade: 1 | Autor: Mark Twain | Editora: Rideel | Ano: 2010 | Prateleira: 1 | FaixaEtaria: 1A
+Nome: Os irmãos de mowgli | Registro: 3 | Quantidade: 3 | Autor: Rudyard Kipling | Editora: Rideel | Ano: 2009 | Prateleira: 1 | FaixaEtaria: 1A
+Nome: O último dos moicanos | Registro: 4 | Quantidade: 3 | Autor: James Fenimore Cooper | Editora: Rideel | Ano: 2010 | Prateleira: 1 | FaixaEtaria: 1A
+Nome: O Escaravelho de ouro e gato preto | Registro: 5 | Quantidade: 3 | Autor: Edgar Allan Poe | Editora: Rideel | Ano: 2009 | Prateleira: 1 | FaixaEtaria: 1A
+Nome: O jovem rei | Registro: 6 | Quantidade: 1 | Autor: Oscar Wilde | Editora: Rideel | Ano: 2006 | Prateleira: 1 | FaixaEtaria: 1A
+Nome: Filhos e Amantes | Registro: 7 | Quantidade: 1 | Autor: D. H. Lawrence | Editora: Rideel | Prateleira: P1 | FaixaEtaria: 1A
+Nome: O seminarista | Registro: 8 | Quantidade: 1 | Autor: Bernardo Guimarães | Editora: Rideel | Ano: 2009 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Viagens de gulliver | Registro: 9 | Quantidade: 1 | Autor: Jonathan Swift | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Os irmaãos corsos | Registro: 10 | Quantidade: 4 | Autor: Alexandre Dumas | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: O barril de Amontillado e o demônio da perversidade | Registro: 11 | Quantidade: 2 | Autor: Edgar Allan Poe | Editora: Rideel | Ano: 2009 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Hans Pfaall uma aventura sem paralelo | Registro: 12 | Quantidade: 1 | Autor: Edgar Allan Poe | Editora: Rieel | Ano: 2006 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: A volta do parafuso | Registro: 13 | Quantidade: 3 | Autor: Herry James | Editora: Rideel | Ano: 2009 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Triste fim de policarpo quaresma | Registro: 14 | Quantidade: 1 | Autor: Lima Barreto | Editora: Rideel | Prateleira: P1 | FaixaEtaria: 1A
+Nome: O médico e o monstro | Registro: 15 | Quantidade: 4 | Autor: Robert Louis Stevenson | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Moll Flanders | Registro: 16 | Quantidade: 1 | Autor: Daniel Defoe | Editora: Rideel | Prateleira: P1 | FaixaEtaria: 1A
+Nome: A cidade e as Serras | Registro: 17 | Quantidade: 1 | Autor: Eça de Dueirós | Editora: Rideel | Prateleira: P1 | FaixaEtaria: 1A
+Nome: O crime do padre Amaro | Registro: 18 | Quantidade: 1 | Autor: Eça de Dueirós | Editora: Rideel | Prateleira: P1 | FaixaEtaria: 1A
+Nome: As aventuras de Robinson Crusoé | Registro: 19 | Quantidade: 1 | Autor: Daniel Defoe | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: O conde de monte cristo | Registro: 20 | Quantidade: 2 | Autor: Alexandre Dumas | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Felicidade e o estranho | Registro: 21 | Quantidade: 2 | Autor: Katherine Mansfield | Editora: Rideel | Ano: 2009 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Heidi a garota dos alpes | Registro: 22 | Quantidade: 1 | Autor: Johana Spyri | Editora: Rideel | Ano: 2009 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Conto de natal | Registro: 23 | Quantidade: 2 | Autor: Charles Dickenes | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: O retrato de dorian Gray | Registro: 24 | Quantidade: 1 | Autor: Oscar Wilde | Editora: Rideel | Ano: 2009 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: O príncipe feliz e o gigante egoísta | Registro: 25 | Quantidade: 1 | Autor: Oscar Wilde | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: O poço e o pêndulo | Registro: 26 | Quantidade: 1 | Autor: Edgar Allan Poe | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Rip Van Winkle: O dorminhoco | Registro: 27 | Quantidade: 1 | Autor: Washington Irving | Editora: Rideel | Ano: 2009 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: O fantasma de canterville | Registro: 28 | Quantidade: 1 | Autor: Oscar Wilde | Editora: Rideel | Ano: 2009 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Os três mosqueteiros | Registro: 29 | Quantidade: 1 | Autor: Alexandre Dumas | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: A letra Escarlate | Registro: 30 | Quantidade: 1 | Autor: Nathaliel Hawthorne | Editora: Rideel | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Madame Bovary | Registro: 31 | Quantidade: 1 | Autor: Gustave Flubert | Editora: Rideel | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Moby Dick | Registro: 32 | Quantidade: 1 | Autor: Herman Melville | Editora: Rideel | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Grandes esperanças | Registro: 33 | Quantidade: 1 | Autor: Charles Dickens | Editora: Rideel | Prateleira: P1 | FaixaEtaria: 1A
+Nome: A peste escarlate | Registro: 34 | Quantidade: 1 | Autor: Jack London | Editora: Rideel | Prateleira: P1 | FaixaEtaria: 1A
+Nome: A trágica Historía do doutro Fausto | Registro: 35 | Quantidade: 1 | Autor: Christopher Marlowe | Editora: Rideel | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Um assasinato, um misterío e um casamento | Registro: 36 | Quantidade: 1 | Autor: Mark Twain | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Ela | Registro: 37 | Quantidade: 2 | Autor: H. Rider Haggard | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: As aventuras de Huckleberry finn | Registro: 38 | Quantidade: 1 | Autor: Mark Twain | Editora: Rideel | Ano: 2010 | Prateleira: P1 | FaixaEtaria: 1A
+Nome: Apática | Registro: 39 | Quantidade: 2 | Autor: Marcelo Xavier | Editora: Maxi | Ano: 2018 | Prateleira: P1 | FaixaEtaria: 1A
