@@ -311,6 +311,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_out(['success' => true, 'categorias' => array_keys($cats)]);
     }
 
+    // ── listar_prateleiras ──────────────────────────────────────────────────
+    if ($acao === 'listar_prateleiras') {
+        $livros = parse_livros($arquivo);
+        $prats  = [];
+        foreach ($livros as $l) {
+            if ($l['prateleira']) $prats[$l['prateleira']] = true;
+        }
+        ksort($prats);
+        json_out(['success' => true, 'prateleiras' => array_keys($prats)]);
+    }
+
+    // ── listar_salas ─────────────────────────────────────────────────────────
+    if ($acao === 'listar_salas') {
+        $emps  = parse_emprestimos($arqEmprestimos);
+        $salas = [];
+        foreach ($emps as $e) {
+            $s = trim($e['sala'] ?? '');
+            if ($s !== '') $salas[strtoupper($s)] = true;
+        }
+        ksort($salas);
+        json_out(['success' => true, 'salas' => array_keys($salas)]);
+    }
+
     // ── buscar_historico ─────────────────────────────────────────────────────
     if ($acao === 'buscar_historico') {
         $busca = strtolower(trim($_POST['busca'] ?? ''));
@@ -523,8 +546,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       position: sticky; top: 0; background: #0f0f0f; z-index: 10;
     }
     .modal-reg {
-      font-family: var(--font-mono); font-size: 0.75rem;
-      letter-spacing: 0.25em; color: red; margin-bottom: 0.35rem;
+      font-family: var(--font-mono); font-size: 0.90rem;
+      letter-spacing: 0.15em; color: #b0b8cc; margin-bottom: 0.35rem;
     }
     .modal-title {
       font-family: var(--font-display); font-size: 1.5rem;
@@ -532,7 +555,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     .modal-close {
       background: #1a1a1a; border: 1px solid #2a2a2a; color: #aaa;
-      font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer;
+      font-family: var(--font-mono); font-size: 0.90rem; cursor: pointer;
       padding: 0.5rem 0.9rem; transition: all var(--transition); flex-shrink: 0;
       letter-spacing: 0.05em; border-radius: var(--radius);
     }
@@ -794,6 +817,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .edit-ts .ts-dropdown .option:hover,
     .edit-ts .ts-dropdown .option.active { background: #1e1e1e !important; color: #e0e0e0 !important; }
     .edit-ts .ts-wrapper.focus .ts-control { border-color: #4a8fff !important; }
+
+    /* ── TomSelect loan-sala overrides ── */
+    .loan-ts .ts-wrapper { width: 100%; }
+    .loan-ts .ts-control {
+      background: #0a0a0a !important; border: 1px solid #2a2a2a !important;
+      border-radius: var(--radius) !important; color: #e0e0e0 !important;
+      font-family: var(--font-mono) !important; font-size: 0.8rem !important;
+      padding: 0.4rem 0.75rem !important; min-height: unset !important;
+    }
+    .loan-ts .ts-control input { color: #e0e0e0 !important; }
+    .loan-ts .ts-control input::placeholder { color: #444 !important; font-style: italic; }
+    .loan-ts .ts-dropdown { background: #111 !important; border: 1px solid #2a2a2a !important; font-family: var(--font-mono) !important; font-size: 0.8rem !important; }
+    .loan-ts .ts-dropdown .option:hover,
+    .loan-ts .ts-dropdown .option.active { background: #1e1e1e !important; color: #e0e0e0 !important; }
+    .loan-ts .ts-wrapper.focus .ts-control { border-color: var(--rust) !important; }
   </style>
 </head>
 <body>
@@ -891,7 +929,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div>
         <p class="modal-reg" id="modal-reg">—</p>
         <h2 class="modal-title" id="modal-title">—</h2>
-        <p id="modal-prateleira" style="font-family:var(--font-mono);font-size:0.7rem;color:#c87941;margin-top:0.35rem;letter-spacing:0.05em;min-height:1rem;"></p>
+        <p id="modal-prateleira" style="font-family:var(--font-mono);font-size:0.85rem;color:#3eff08;margin-top:0.4rem;letter-spacing:0.06em;min-height:1.1rem;font-weight:500;"></p>
       </div>
       <button class="modal-close" id="modal-close" type="button">✕ Fechar</button>
     </div>
@@ -931,12 +969,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </label>
               <input class="loan-input" id="loan-aluno" type="text" placeholder="ex: João Silva" autocomplete="off">
             </div>
-            <div class="loan-field" style="max-width:110px">
+            <div class="loan-field loan-ts" style="max-width:130px">
               <label class="loan-label" for="loan-sala">
                 Sala / Turma
-                <span class="tip" data-tip="Ex: 2 REG 3 ou 3B">?</span>
+                <span class="tip" data-tip="Digite ou escolha uma sala.&#10;Mostra as que já foram cadastradas.&#10;Ex: 2 REG 3 ou 3B">?</span>
               </label>
-              <input class="loan-input" id="loan-sala" type="text" placeholder="2 REG 3" autocomplete="off">
+              <select id="loan-sala">
+                <option value="">— Digite ou escolha —</option>
+              </select>
             </div>
             <div class="loan-field" style="max-width:190px">
               <label class="loan-label" for="loan-devol-preset">
@@ -990,29 +1030,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="edit-field edit-ts">
               <label class="edit-label">Prateleira
-                <span class="tip" data-tip="Digite ou escolha a prateleira.&#10;Ex: 2C, 3A">?</span>
+                <span class="tip" data-tip="Digite ou escolha a prateleira.&#10;Mostra as que já existem no acervo.">?</span>
               </label>
               <select id="edit-prateleira" class="edit-select">
                 <option value="">— Sem prateleira —</option>
-                <?php foreach(['A','B','C','D','E'] as $l) for($n=1;$n<=5;$n++): ?>
-                <option value="<?=$l.$n?>"><?=$l.$n?></option>
-                <?php endfor; ?>
               </select>
             </div>
             <div class="edit-field edit-ts">
               <label class="edit-label">Gênero / Classificação
-                <span class="tip" data-tip="Categoria do livro.&#10;Você pode digitar um novo gênero.">?</span>
+                <span class="tip" data-tip="Categoria do livro.&#10;Mostra as que já existem no acervo.&#10;Você pode digitar um novo gênero.">?</span>
               </label>
               <select id="edit-faixa" class="edit-select">
                 <option value="">— Sem categoria —</option>
-                <option value="1A">1A — Infanto Juvenil</option>
-                <option value="2A">2A — Conto</option>
-                <option value="3A">3A — Ficção Científica</option>
-                <option value="4A">4A — Romance</option>
-                <option value="5A">5A — Literatura Brasileira</option>
-                <option value="6A">6A — Poesia</option>
-                <option value="guerra">Guerra</option>
-                <option value="TODOS">Todas as idades</option>
               </select>
             </div>
           </div>
@@ -1057,7 +1086,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   let allLivros     = [];
 
   // ── TomSelect for edit fields ────────────────────────────────────────────
-  let tsEditPrat = null, tsEditFaixa = null;
+  let tsEditPrat = null, tsEditFaixa = null, tsLoanSala = null;
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   function esc(s) {
@@ -1269,7 +1298,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // ── Emprestar ─────────────────────────────────────────────────────────────
   document.getElementById('btn-emprestar').addEventListener('click', async () => {
     const aluno    = document.getElementById('loan-aluno').value.trim();
-    const sala     = document.getElementById('loan-sala').value.trim();
+    const sala     = tsLoanSala ? tsLoanSala.getValue() : document.getElementById('loan-sala').value.trim();
     const devolucao = getDevISO();
     const msg      = document.getElementById('loan-msg');
 
@@ -1287,7 +1316,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     msg.style.color = data.success ? '#4caf7d' : '#cc4400';
     if (data.success) {
       document.getElementById('loan-aluno').value = '';
-      document.getElementById('loan-sala').value  = '';
+      if (tsLoanSala) { tsLoanSala.clear(); }
       presetSel.value = '';
       customWrap.style.display = 'none';
       loanPreview.textContent = '';
@@ -1307,14 +1336,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   document.getElementById('filter-aluno').addEventListener('input', aplicarFiltros);
 
   // ── Render loans list ──────────────────────────────────────────────────────
-  function renderLoans(livro) {
+  async function renderLoans(livro) {
     const genInfo  = livro.faixaEtaria ? (GENERO[livro.faixaEtaria] || ['', livro.faixaEtaria]) : null;
     const genLabel = genInfo ? (genInfo[0] ? `${genInfo[0]} — ${genInfo[1]}` : genInfo[1]) : '';
     const extras   = [livro.autor ? `Autor: ${livro.autor}` : '', genLabel ? `Gênero: ${genLabel}` : ''].filter(Boolean).join(' · ');
 
-    document.getElementById('modal-reg').textContent     = `REG #${livro.registro}` + (extras ? ` · ${extras}` : '');
+    // Build modal-reg with readable HTML (not all crammed together)
+    const regEl = document.getElementById('modal-reg');
+    let regHTML = `<span style="color:#8899bb;letter-spacing:0.2em">REG #${esc(livro.registro)}</span>`;
+    if (livro.autor) regHTML += `<span style="color:#3eff08;margin:0 0.4rem">·</span><span style="color:#3eff08">Autor: ${esc(livro.autor)}</span>`;
+    if (livro.faixaEtaria) {
+      const gi = GENERO[livro.faixaEtaria] || ['', livro.faixaEtaria];
+      const gl = gi[0] ? `${gi[0]} — ${gi[1]}` : gi[1];
+      regHTML += `<span style="color:#999;margin:0 0.4rem">·</span><span style="color:#3eff08">Gênero: ${esc(gl)}</span>`;
+    }
+    regEl.innerHTML = regHTML;
     document.getElementById('modal-title').textContent   = livro.nome;
-    document.getElementById('modal-prateleira').textContent = livro.prateleira ? `📚 Prateleira: ${livro.prateleira}` : '';
+    const pratEl = document.getElementById('modal-prateleira');
+    pratEl.textContent = livro.prateleira ? `📚 Prateleira: ${livro.prateleira}` : '';
+    pratEl.style.display = livro.prateleira ? '' : 'none';
     document.getElementById('stat-total').textContent    = livro.quantidade;
 
     const elEmp  = document.getElementById('stat-emprestados');
@@ -1333,22 +1373,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     document.getElementById('edit-editora').value   = livro.editora     || '';
     document.getElementById('edit-ano').value       = livro.ano         || '';
     document.getElementById('edit-quantidade').value= livro.quantidade  || '';
-    // TomSelect: destroy & recreate
+    // TomSelect: destroy & recreate with dynamic options from server
     if (tsEditPrat)  { tsEditPrat.destroy();  tsEditPrat  = null; }
     if (tsEditFaixa) { tsEditFaixa.destroy(); tsEditFaixa = null; }
-    // Reset select values before recreating
-    const selPrat = document.getElementById('edit-prateleira');
+    if (tsLoanSala)  { tsLoanSala.destroy();  tsLoanSala  = null; }
+
+    // Fetch prateleiras e categorias do servidor para popular os selects
+    const selPrat  = document.getElementById('edit-prateleira');
     const selFaixa = document.getElementById('edit-faixa');
-    selPrat.value  = livro.prateleira  || '';
-    selFaixa.value = livro.faixaEtaria || '';
+
+    // Limpa opções antigas (mantém só o placeholder)
+    selPrat.innerHTML  = '<option value="">— Sem prateleira —</option>';
+    selFaixa.innerHTML = '<option value="">— Sem categoria —</option>';
+
+    // Busca dados do servidor em paralelo
+    const [pratData, catData, salasData] = await Promise.all([
+      post({ acao: 'listar_prateleiras' }),
+      post({ acao: 'listar_categorias' }),
+      post({ acao: 'listar_salas' })
+    ]);
+
+    if (pratData.success) {
+      pratData.prateleiras.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p; opt.textContent = p;
+        if (p === livro.prateleira) opt.selected = true;
+        selPrat.appendChild(opt);
+      });
+      // Se a prateleira do livro não está na lista, adiciona
+      if (livro.prateleira && !pratData.prateleiras.includes(livro.prateleira)) {
+        const opt = document.createElement('option');
+        opt.value = livro.prateleira; opt.textContent = livro.prateleira; opt.selected = true;
+        selPrat.appendChild(opt);
+      }
+    }
+
+    if (catData.success) {
+      catData.categorias.forEach(c => {
+        const g = GENERO[c];
+        const label = g ? (g[0] ? `${g[0]} — ${g[1]}` : g[1]) : c;
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = label;
+        if (c === livro.faixaEtaria) opt.selected = true;
+        selFaixa.appendChild(opt);
+      });
+      // Se o gênero do livro não está na lista, adiciona
+      if (livro.faixaEtaria && !catData.categorias.includes(livro.faixaEtaria)) {
+        const g = GENERO[livro.faixaEtaria];
+        const label = g ? (g[0] ? `${g[0]} — ${g[1]}` : g[1]) : livro.faixaEtaria;
+        const opt = document.createElement('option');
+        opt.value = livro.faixaEtaria; opt.textContent = label; opt.selected = true;
+        selFaixa.appendChild(opt);
+      }
+    }
+
+    // Popula o select de sala do formulário de empréstimo
+    const selSala = document.getElementById('loan-sala');
+    selSala.innerHTML = '<option value="">— Digite ou escolha —</option>';
+    if (salasData.success && salasData.salas) {
+      salasData.salas.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        selSala.appendChild(opt);
+      });
+    }
+    tsLoanSala = new TomSelect('#loan-sala', {
+      create: true, sortField: false, placeholder: '— Digite ou escolha —',
+      render: {
+        option_create: (data, escape) => `<div class="create">Adicionar <strong>${escape(data.input)}</strong>…</div>`,
+        no_results: () => `<div class="no-results">Nenhuma sala cadastrada ainda.</div>`
+      }
+    });
+    tsLoanSala.clear();
 
     tsEditPrat = new TomSelect('#edit-prateleira', {
-      create: true, sortField: false, placeholder: '— Selecionar ou digitar —'
+      create: true, sortField: false, placeholder: '— Selecionar ou digitar —',
+      render: {
+        option_create: (data, escape) => `<div class="create">Adicionar <strong>${escape(data.input)}</strong>…</div>`,
+        no_results: () => `<div class="no-results">Nenhum resultado.</div>`
+      }
     });
     tsEditFaixa = new TomSelect('#edit-faixa', {
-      create: true, sortField: false, placeholder: '— Selecionar ou digitar —'
+      create: true, sortField: false, placeholder: '— Selecionar ou digitar —',
+      render: {
+        option_create: (data, escape) => `<div class="create">Adicionar <strong>${escape(data.input)}</strong>…</div>`,
+        no_results: () => `<div class="no-results">Nenhum resultado.</div>`
+      }
     });
-    // Restore values after TomSelect init
     tsEditPrat.setValue(livro.prateleira   || '');
     tsEditFaixa.setValue(livro.faixaEtaria || '');
 
@@ -1396,7 +1507,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   async function abrirModal(registro) {
     modalRegistro = registro;
     document.getElementById('loan-aluno').value = '';
-    document.getElementById('loan-sala').value  = '';
+    if (tsLoanSala) { tsLoanSala.clear(); }
     document.getElementById('loan-msg').textContent  = '';
     presetSel.value = '';
     customWrap.style.display = 'none';
@@ -1412,7 +1523,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       const data = await post({ acao: 'detalhes_livro', registro });
       if (data.success) {
         modalLivroData = data.livro;
-        renderLoans(data.livro);
+        await renderLoans(data.livro);
         overlay.classList.add('open');
         setTimeout(() => document.getElementById('loan-aluno').focus(), 300);
       } else {
@@ -1632,7 +1743,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             else if (dias <= 3)    info = `Em ${dias} dia${dias !== 1 ? 's' : ''} (${fmtDate(e.devolucao)})`;
             const genInfo = e.faixaEtaria ? (GENERO[e.faixaEtaria] || ['', e.faixaEtaria]) : null;
             const catBadge = genInfo
-              ? `<span style="font-family:var(--font-mono);font-size:0.6rem;color:#c87941;margin-left:0.5rem">
+              ? `<span style="font-family:var(--font-mono);font-size:0.6rem;color:#3eff08;margin-left:0.5rem">
                    [${esc(genInfo[0] || genInfo[1])}]
                  </span>` : '';
             return `

@@ -1,6 +1,41 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      SEÇÃO: Câmera para captura de capa (sem IA por enquanto)
 ════════════════════════════════════════════════════════════════════ -->
+
+<?php
+$diretorio      = __DIR__ . '/../../db';
+$arquivo        = $diretorio . '/banco.txt';
+
+$prateleiras_existentes = [];
+$generos_extras = [];
+
+$linhas = file($arquivo, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+foreach ($linhas as $linha) {
+    if (strpos($linha, 'Nome:') === false) continue; // pula cabeçalho
+
+    // Extrai Prateleira
+    if (preg_match('/Prateleira:\s*([^|]+)/', $linha, $m)) {
+        $p = trim($m[1]);
+        if ($p !== '' && !in_array($p, $prateleiras_existentes)) {
+            $prateleiras_existentes[] = $p;
+        }
+    }
+
+    // Extrai FaixaEtaria
+    if (preg_match('/FaixaEtaria:\s*([^|]+)/', $linha, $m)) {
+        $g = trim($m[1]);
+        if ($g !== '' && !in_array($g, $generos_extras)) {
+            $generos_extras[] = $g;
+        }
+    }
+}
+
+sort($prateleiras_existentes);
+
+$fixos = ['1A','2A','3A','4A','5A','6A','TODOS'];
+$generos_extras = array_filter($generos_extras, fn($g) => !in_array($g, $fixos));
+?>
+
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <section class="scan-section">
@@ -138,50 +173,37 @@
         </div>
 
         <div class="field-group" style="flex:2;min-width:160px">
-  <label class="field-label" for="f-prateleira">Prateleira</label>
-  <div class="field-wrap">
-    <!-- Trocamos o select pelo input com o atributo list -->
-    <input 
-      type="text" 
-      class="field-input" 
-      id="f-prateleira" 
-      name="prateleira" 
-      list="prateleiras-list" 
-      placeholder="Digite ou selecione..."
-      autocomplete="off"
-    >
-    
-    <!-- O datalist contém as opções que o banco de dados já possui -->
-    <datalist id="prateleiras-list">
-      <option value="P1">
-      <option value="P2">
-      <option value="P3">
-      <option value="P4">
-      <option value="P5">
-    </datalist>
-    
-    <span class="field-bar"></span>
-  </div>
-</div>
-
-        <div class="field-group" style="flex:2;min-width:200px">
-          <label class="field-label" for="f-faixa-etaria">Classificação / Gênero</label>
-          <div class="field-wrap">
-            <select class="field-input" id="f-faixa-etaria" name="faixa_etaria">
-              <option value="">— Selecionar —</option>
-              <option value="1A">1A — Infanto Juvenil</option>
-              <option value="2A">2A — Conto</option>
-              <option value="3A">3A — Ficção Científica</option>
-              <option value="4A">4A — Romance</option>
-              <option value="5A">5A — Literatura Brasileira</option>
-              <option value="6A">6A — Poesia</option>
-	      
-              <option value="TODOS">Todas as idades</option>
-            </select>
-            <span class="field-bar"></span>
+            <label class="field-label" for="f-prateleira">Prateleira</label>
+            <div class="field-wrap">
+              <select class="field-input" id="f-prateleira" name="prateleira">
+                <option value="">— Selecionar ou digitar —</option>
+                <?php foreach ($prateleiras_existentes as $p): ?>
+                  <option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?></option>
+                <?php endforeach; ?>
+              </select>
+              <span class="field-bar"></span>
+            </div>
           </div>
-        </div>
-      </div>
+
+          <div class="field-group" style="flex:2;min-width:200px">
+            <label class="field-label" for="f-faixa-etaria">Classificação / Gênero</label>
+            <div class="field-wrap">
+              <select class="field-input" id="f-faixa-etaria" name="faixa_etaria">
+                <option value="">— Selecionar —</option>
+                <option value="1A">1A — Infanto Juvenil</option>
+                <option value="2A">2A — Conto</option>
+                <option value="3A">3A — Ficção Científica</option>
+                <option value="4A">4A — Romance</option>
+                <option value="5A">5A — Literatura Brasileira</option>
+                <option value="6A">6A — Poesia</option>
+                <option value="TODOS">Todas as idades</option>
+                <?php foreach ($generos_extras as $g): ?>
+                  <option value="<?= htmlspecialchars($g) ?>"><?= htmlspecialchars($g) ?></option>
+                <?php endforeach; ?>
+              </select>
+              <span class="field-bar"></span>
+            </div>
+          </div>
 
       <div class="form-actions">
         <button class="btn-submit" type="submit">

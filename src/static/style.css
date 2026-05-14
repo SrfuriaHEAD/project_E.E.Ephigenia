@@ -417,7 +417,7 @@ main.main {
 
 .modal-reg {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.95rem;
   letter-spacing: 0.25em;
   color: var(--blue);
   margin-bottom: 0.35rem;
@@ -436,7 +436,7 @@ main.main {
   border: 1px solid var(--border);
   color: var(--text-sub);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.95rem;
   cursor: pointer;
   padding: 0.5rem 0.9rem;
   transition: all var(--transition);
